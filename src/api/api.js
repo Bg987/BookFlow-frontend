@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "https://bookflow-1ceq.onrender.com/api"; // backend URL
-//http://localhost:5000api
+const BASE_URL = "http://localhost:5000/api"; // backend URL
+//https://bookflow-1ceq.onrender.com
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },

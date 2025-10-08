@@ -11,7 +11,6 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { signupLibPre } from "../api/api";
-import axios from "axios";
 
 const LibraryPreSignup = () => {
   const [formData, setFormData] = useState({
@@ -30,7 +29,7 @@ const LibraryPreSignup = () => {
   const [loadingLocation, setLoadingLocation] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Mandatory location request
+  // Request location
   useEffect(() => {
     const requestLocation = () => {
       if (navigator.geolocation) {
@@ -44,7 +43,6 @@ const LibraryPreSignup = () => {
             setLoadingLocation(false);
           },
           () => {
-            // Retry if denied
             setTimeout(requestLocation, 1000);
           }
         );
@@ -59,30 +57,26 @@ const LibraryPreSignup = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setSuccess("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
-  if (formData.password !== formData.confirmPassword) {
-    setError("Passwords do not match!");
-    return;
-  }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
 
-  setSubmitting(true);
-  try {
+    setSubmitting(true);
+    try {
       const res = await signupLibPre(formData);
-            setSuccess(res.data.message);
-    //       setTimeout(() => {
-    //   window.location.href = "/library-login"; // <-- update to your actual route
-    // }, 3000);
-  } catch (err) {
-    setError(err.response?.data?.message || "Something went wrong!");
-  } finally {
-    setSubmitting(false);
-  }
-};
-
+      setSuccess(res.data.message);
+    } catch (err) {
+      setError(err.response?.data?.message || "Something went wrong!");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loadingLocation) {
     return (
@@ -132,7 +126,10 @@ const handleSubmit = async (e) => {
             mx: "auto",
           }}
         >
-          <Typography variant="h4" sx={{ mb: 3, textAlign: "center", fontWeight: "bold" }}>
+          <Typography
+            variant="h4"
+            sx={{ mb: 3, textAlign: "center", fontWeight: "bold" }}
+          >
             Library Signup
           </Typography>
 
@@ -149,6 +146,7 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   fullWidth
                   required
+                  disabled={submitting}
                 />
               </Grid>
 
@@ -161,6 +159,7 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   fullWidth
                   required
+                  disabled={submitting}
                 />
               </Grid>
 
@@ -172,6 +171,7 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   fullWidth
                   required
+                  disabled={submitting}
                 />
               </Grid>
 
@@ -184,6 +184,7 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   fullWidth
                   required
+                  disabled={submitting}
                 />
               </Grid>
 
@@ -196,33 +197,34 @@ const handleSubmit = async (e) => {
                   onChange={handleChange}
                   fullWidth
                   required
+                  disabled={submitting}
                 />
               </Grid>
 
               {/* Founded Year Autocomplete */}
               <Grid item xs={12}>
-  <Autocomplete
-    freeSolo
-    options={foundedYearOptions}
-    value={formData.founded_year}
-    onChange={(event, newValue) =>
-      setFormData((prev) => ({ ...prev, founded_year: newValue }))
-    }
-    onInputChange={(event, newInputValue) =>
-      setFormData((prev) => ({ ...prev, founded_year: newInputValue }))
-    }
-    sx={{ width: "100%" }} // Full width for the autocomplete container
-    renderInput={(params) => (
-      <TextField
-        {...params}
-        label="Founded Year"
-        fullWidth 
-        required
-      />
-    )}
-  />
-</Grid>
-
+                <Autocomplete
+                  freeSolo
+                  options={foundedYearOptions}
+                  value={formData.founded_year}
+                  onChange={(event, newValue) =>
+                    setFormData((prev) => ({ ...prev, founded_year: newValue }))
+                  }
+                  onInputChange={(event, newInputValue) =>
+                    setFormData((prev) => ({ ...prev, founded_year: newInputValue }))
+                  }
+                  sx={{ width: "100%" }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Founded Year"
+                      fullWidth
+                      required
+                      disabled={submitting}
+                    />
+                  )}
+                />
+              </Grid>
 
               {/* Display lat/lng */}
               <Grid item xs={12}>
@@ -241,7 +243,7 @@ const handleSubmit = async (e) => {
                   sx={{ borderRadius: 3 }}
                   disabled={submitting}
                 >
-                  {submitting ? "Submitting..." : "Sign Up"}
+                  {submitting ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
                 </Button>
               </Grid>
             </Grid>

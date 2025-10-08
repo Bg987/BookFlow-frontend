@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography, Alert, Paper } from "@mui/material";
+import { Box, TextField, Button, Typography, Alert, Paper, CircularProgress } from "@mui/material";
 import { LoginLib } from "../api/api";
 
 const LibraryLogin = () => {
@@ -7,13 +7,16 @@ const LibraryLogin = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false); // <-- new loading state
 
   const handleLogin = async () => {
     setError("");
     setSuccess("");
+    setLoading(true); // start loader
 
     if (!username || !password) {
       setError("Username and password are required");
+      setLoading(false);
       return;
     }
 
@@ -23,6 +26,8 @@ const LibraryLogin = () => {
       // window.location.href = "/library-dashboard";
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false); // stop loader
     }
   };
 
@@ -62,16 +67,8 @@ const LibraryLogin = () => {
           Library Login
         </Typography>
 
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-        {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {success}
-          </Alert>
-        )}
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
         <TextField
           label="Username"
@@ -80,6 +77,7 @@ const LibraryLogin = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           variant="outlined"
+          disabled={loading} // disable input while loading
         />
 
         <TextField
@@ -90,6 +88,7 @@ const LibraryLogin = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           variant="outlined"
+          disabled={loading} // disable input while loading
         />
 
         <Button
@@ -104,8 +103,9 @@ const LibraryLogin = () => {
             textTransform: "none",
           }}
           onClick={handleLogin}
+          disabled={loading} // disable button while loading
         >
-          Login
+          {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
         </Button>
 
         <Typography

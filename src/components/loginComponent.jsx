@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, TextField, Button, Typography, Alert, CircularProgress, Paper } from "@mui/material";
 
-const LoginForm = ({ loginApi, onSuccessRedirect = "/" }) => {
+const LoginForm = ({ Type, loginApi, onSuccessRedirect = "/" }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -50,7 +50,7 @@ const LoginForm = ({ loginApi, onSuccessRedirect = "/" }) => {
         textAlign="center"
         sx={{ fontWeight: "bold", color: "#1976d2", letterSpacing: 0.5 }}
       >
-        Login
+        {Type} Login
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -86,6 +86,17 @@ const LoginForm = ({ loginApi, onSuccessRedirect = "/" }) => {
         disabled={loading}
       >
         {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+      </Button>
+
+      {/* Hardcoded redirect for Forgot Password */}
+      <Button
+        variant="text"
+        color="secondary"
+        fullWidth
+        sx={{ mt: 2, textTransform: "none" }}
+        onClick={() => window.location.href = "/forgotPass"}
+      >
+        Forgot Password?
       </Button>
 
       <Typography variant="body2" textAlign="center" sx={{ mt: 3, color: "#666" }}>

@@ -7,10 +7,12 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 })
-
-// Auth APIs
-//export const loginUser = (data) => api.post("/auth/login", data);
+//utility apis
 export const logout = () => api.post("/logout");
+export const forgotpass = (identifier) => api.post("/forgotPass", identifier);
+export const resetPass = (data) => api.post("/resetPass",data);
+
+//library apis
 export const signupLibPre = (data) => api.post("/library/pre-signup", data);
 export const LoginLib = (data) => api.post("/library/login", data);
 export const DataLib = () => api.get("/library/libdata");

@@ -11,6 +11,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { signupLibPre } from "../api/api";
+import { redirect } from "react-router-dom";
 
 const LibraryPreSignup = () => {
   const [formData, setFormData] = useState({
@@ -56,7 +57,9 @@ const LibraryPreSignup = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  const redirect = () => {
+    window.location.href= "/library-login";
+  }
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -71,6 +74,11 @@ const LibraryPreSignup = () => {
     try {
       const res = await signupLibPre(formData);
       setSuccess(res.data.message);
+      if (res.status === 200) {
+        setTimeout(() => {
+          window.location.href = "/library-login";
+        },3000);
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong!");
     } finally {
@@ -225,14 +233,13 @@ const LibraryPreSignup = () => {
                   )}
                 />
               </Grid>
-
+                  
               {/* Display lat/lng */}
               <Grid item xs={12}>
                 <Typography variant="body2" color="textSecondary">
                   Location captured: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
                 </Typography>
               </Grid>
-
               <Grid item xs={12}>
                 <Button
                   type="submit"
@@ -246,6 +253,14 @@ const LibraryPreSignup = () => {
                   {submitting ? <CircularProgress size={24} color="inherit" /> : "Sign Up"}
                 </Button>
               </Grid>
+               <Button
+                variant="contained"
+                color="primary"
+                onClick={redirect}
+                sx={{ borderRadius: 2, textTransform: "none" }}
+              >
+                Already Have An Account?
+              </Button>
             </Grid>
           </form>
         </Box>

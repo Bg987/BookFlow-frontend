@@ -1,4 +1,3 @@
-import React from "react";
 import { Box } from "@mui/material";
 import LibraryLoginForm from "../components/loginComponent";
 import { LoginLib } from "../api/api"; // API function for library login
@@ -16,6 +15,7 @@ const LibraryLogin = () => {
       }}
     >
       <LibraryLoginForm 
+        Type = "Library"
         loginApi={LoginLib} 
         onSuccessRedirect="/dashLib" 
         role="Library" 

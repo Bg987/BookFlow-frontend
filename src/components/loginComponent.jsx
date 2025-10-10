@@ -67,7 +67,7 @@ const LoginForm = ({ Type, loginApi, onSuccessRedirect = "/" }) => {
       />
 
       <TextField
-        label="Password"
+        label="Password4"
         type="password"
         fullWidth
         margin="normal"

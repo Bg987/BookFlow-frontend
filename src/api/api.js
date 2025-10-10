@@ -16,4 +16,14 @@ export const resetPass = (data) => api.post("/resetPass",data);
 export const signupLibPre = (data) => api.post("/library/pre-signup", data);
 export const LoginLib = (data) => api.post("/library/login", data);
 export const DataLib = () => api.get("/library/libdata");
+
+//librarian apis
+// Remove default Content-Type for multipart requests
+export const AddLibrarian = (data) => {
+  return axios.post(`${BASE_URL}/librarian/AddLibrarian`, data, {
+    withCredentials: true,
+    headers: { "Content-Type": "multipart/form-data" }, // explicitly set for FormData
+  });
+};
+
 export default api;

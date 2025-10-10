@@ -48,7 +48,7 @@ const ResetPassword = () => {
       const response = await resetPass( {token,newPassword: password,});
       setSuccess(response.data.message || "Password reset successful!");
       setTimeout(() => {
-        navigate("/login");
+        navigate("/");
       }, 3000);
     } catch (err) {
         console.log(err);
@@ -61,11 +61,11 @@ const ResetPassword = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+         height: "100vh",
+        width: "100vw",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(135deg, #1976d2, #42a5f5)",
         px: { xs: 2, sm: 4 },
         py: { xs: 4, sm: 6 },
       }}

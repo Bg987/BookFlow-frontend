@@ -135,7 +135,7 @@ const ForgotPassword = () => {
                 fontWeight: 500,
                 "&:hover": { textDecoration: "underline" },
               }}
-              onClick={() => (window.location.href = "/login")}
+              onClick={() => (window.location.href = "/")}
             >
               Back to Login
             </Button>

@@ -16,7 +16,6 @@ const AddLibrarianForm = ({ onClose, onAdded }) => {
     dob: "",
     email: "",
     username: "",
-    experience: "",
     profilePic: null,
   });
   const [preview, setPreview] = useState(null); // For image preview
@@ -40,8 +39,8 @@ const AddLibrarianForm = ({ onClose, onAdded }) => {
     setError("");
     setSuccess("");
 
-    const { name, dob, email, username, experience, profilePic } = formData;
-    if (!name || !dob || !email || !username || !experience || !profilePic) {
+    const { name, dob, email, username, profilePic } = formData;
+    if (!name || !dob || !email || !username  || !profilePic) {
       setError("All fields are required.");
       return;
     }
@@ -61,7 +60,6 @@ const AddLibrarianForm = ({ onClose, onAdded }) => {
         dob: "",
         email: "",
         username: "",
-        experience: "",
         profilePic: null,
       });
       setPreview(null);
@@ -89,16 +87,11 @@ const AddLibrarianForm = ({ onClose, onAdded }) => {
         Add Librarian
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
-
       <form onSubmit={handleSubmit}>
         <TextField label="Name" name="name" value={formData.name} onChange={handleChange} fullWidth margin="normal" />
         <TextField label="Date of Birth" name="dob" type="date" value={formData.dob} onChange={handleChange} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
         <TextField label="Email" name="email" type="email" value={formData.email} onChange={handleChange} fullWidth margin="normal" />
         <TextField label="Username" name="username" value={formData.username} onChange={handleChange} fullWidth margin="normal" />
-        <TextField label="Experience (Years)" name="experience" type="number" value={formData.experience} onChange={handleChange} fullWidth margin="normal" />
-
         <Button variant="contained" component="label" fullWidth sx={{ mt: 2 }}>
           Upload Profile Picture
           <input type="file" name="profilePic" accept="image/*" hidden onChange={handleChange} />
@@ -115,7 +108,8 @@ const AddLibrarianForm = ({ onClose, onAdded }) => {
         <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 3, py: 1.2, borderRadius: 2 }} disabled={loading}>
           {loading ? <CircularProgress size={24} color="inherit" /> : "Add Librarian"}
         </Button>
-
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
         <Button variant="text" fullWidth sx={{ mt: 2 }} onClick={onClose}>
           Cancel
         </Button>

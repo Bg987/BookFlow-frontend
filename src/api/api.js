@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const BASE_URL = "https://bookflow-1ceq.onrender.com/api"; // backend URL
-//http://localhost:5000
+//http://localhost:5000/
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
@@ -18,7 +18,12 @@ export const LoginLib = (data) => api.post("/library/login", data);
 export const DataLib = () => api.get("/library/libdata");
 
 //librarian apis
-// Remove default Content-Type for multipart requests
+export const LoginLibrarian = (data) =>
+  api.post("/librarian/LoginLibrarian", data);
+
+export const LibrarianData = () => {
+  return api.get(`${BASE_URL}/librarian/getLibrarian`);
+};
 export const AddLibrarian = (data) => {
   return axios.post(`${BASE_URL}/librarian/AddLibrarian`, data, {
     withCredentials: true,

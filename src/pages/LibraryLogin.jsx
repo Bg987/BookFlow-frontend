@@ -17,7 +17,7 @@ const LibraryLogin = () => {
       <LibraryLoginForm 
         Type = "Library"
         loginApi={LoginLib} 
-        onSuccessRedirect="/dashLib" 
+        onSuccessRedirect="/dashLibrary" 
         role="Library" 
       />
     </Box>

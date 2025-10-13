@@ -14,6 +14,7 @@ export default function LibraryDashboard() {
       const response = await DataLib();
       setLibData(response.data.data[0]);
     } catch (error) {
+      setLibData(error);
       console.error("Error fetching library data:", error);
     }
   };
@@ -35,7 +36,7 @@ export default function LibraryDashboard() {
         <Typography variant="h4" fontWeight="bold" sx={{ color: "white" }}>
           📚 {libData.library_name}
         </Typography>
-        <LogoutButton redirectTo="/library-login" />
+        <LogoutButton redirectTo="/" />
       </Box>
 
       <Button variant="contained" color="secondary" sx={{ mb: 3 }} onClick={() => setOpenAddModal(true)}>

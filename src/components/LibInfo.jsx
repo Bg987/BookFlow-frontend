@@ -24,11 +24,6 @@ const LibraryInfoCard = ({ library }) => {
   return (
     <Card sx={{ borderRadius: 3, p: 2, boxShadow: 5 }}>
       <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {library_name}
-        </Typography>
-
-        <Typography>🏛️ Name: {library_name}</Typography>
         <Typography>📅 Founded: {founded_year}</Typography>
         <Typography>✅ Verified: {verified ? "Yes" : "No"}</Typography>
         {total_members !== undefined && <Typography>👥 Total Members: {total_members}</Typography>}

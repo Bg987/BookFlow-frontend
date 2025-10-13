@@ -8,6 +8,8 @@ import LibraryLogin from "./pages/LibraryLogin";
 import ResetPassword from "./pages/resetPassword";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import LibrarianLogin from "./pages/LibrarianLogin";
+import LibrarianDashboard from "./pages/LibrarianDashboard";
 import theme from "./theme";
 
 function App() {
@@ -19,7 +21,9 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/library-signup" element={<LibrarySignup />} />
           <Route path="/library-login" element={<LibraryLogin />} />
-          <Route path="/dashLib" element={<LibraryDashboard />} />
+          <Route path="/dashLibrary" element={<LibraryDashboard />} />
+          <Route path="/librarian-login" element={<LibrarianLogin />} />
+          <Route path="/dashLibrarian" element={<LibrarianDashboard />} />
           <Route path="/forgotPass" element={<ForgotPassword />} />
           <Route path="/resetPass" element={<ResetPassword />} />
         </Routes>

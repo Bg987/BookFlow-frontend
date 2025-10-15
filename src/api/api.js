@@ -21,9 +21,9 @@ export const DataLib = () => api.get("/library/libdata");
 export const LoginLibrarian = (data) =>
   api.post("/librarian/LoginLibrarian", data);
 
-export const LibrarianData = () => {
-  return api.get(`${BASE_URL}/librarian/getLibrarian`);
-};
+export const LibrarianData = () =>
+  api.get(`${BASE_URL}/librarian/getLibrarian`);
+
 export const AddLibrarian = (data) => {
   return axios.post(`${BASE_URL}/librarian/AddLibrarian`, data, {
     withCredentials: true,
@@ -31,4 +31,6 @@ export const AddLibrarian = (data) => {
   });
 };
 
+//books apis
+export const fetchBookData = (isbn) => api.get(`${BASE_URL}/book/fetchByISBN/${isbn}`);
 export default api;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Grid, Button, Modal, Skeleton } from "@mui/material";
+import { Box, Typography, Grid, Button, Drawer, IconButton, Skeleton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { DataLib } from "../api/api";
 import LibraryInfoCard from "../components/LibraryProfile";
 import LogoutButton from "../components/logout";
@@ -8,7 +9,7 @@ import AddLibrarianForm from "../components/AddLibrarianForm";
 export default function LibraryDashboard() {
   const [libData, setLibData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [openAddModal, setOpenAddModal] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const fetchLibraryData = async () => {
     setLoading(true);
@@ -26,6 +27,8 @@ export default function LibraryDashboard() {
   useEffect(() => {
     fetchLibraryData();
   }, []);
+
+  const toggleDrawer = () => setDrawerOpen((prev) => !prev);
 
   return (
     <Box
@@ -47,41 +50,48 @@ export default function LibraryDashboard() {
         <LogoutButton redirectTo="/" />
       </Box>
 
+      {/* Add Librarian button */}
       <Button
         variant="contained"
         color="secondary"
         sx={{ mb: 3 }}
-        onClick={() => setOpenAddModal(true)}
-        disabled={loading} // disable while loading
+        onClick={toggleDrawer}
+        disabled={loading}
       >
-        + Add Librarian
+        {drawerOpen ? "Close Add Librarian" : "+ Add Librarian"}
       </Button>
 
+      {/* Library info */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <LibraryInfoCard library={libData} loading={loading} />
         </Grid>
       </Grid>
 
-      {/* Modal for Add Librarian */}
-      <Modal open={openAddModal} onClose={() => setOpenAddModal(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
+      {/* Drawer for AddLibrarianForm */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={toggleDrawer}
+        PaperProps={{
+          sx: {
+            width: "100%",
+            maxWidth: 600,
             p: 3,
-            borderRadius: 3,
-            width: { xs: "90%", sm: 500 },
-            maxHeight: "90vh",
             overflowY: "auto",
-          }}
-        >
-          <AddLibrarianForm onClose={() => setOpenAddModal(false)} onAdded={fetchLibraryData} />
+          },
+        }}
+      >
+        {/* Close button */}
+        <Box display="flex" justifyContent="flex-end">
+          <IconButton onClick={toggleDrawer}>
+            <CloseIcon />
+          </IconButton>
         </Box>
-      </Modal>
+
+        {/* Add Librarian form */}
+        <AddLibrarianForm onClose={toggleDrawer} onAdded={fetchLibraryData} />
+      </Drawer>
     </Box>
   );
 }

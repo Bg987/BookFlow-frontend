@@ -33,24 +33,7 @@ const LibrarianDashboard = () => {
   }, []);
 
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
-
-  const fetchBookByISBN = async (isbn) => {
-    if (!isbn) return alert("Please enter ISBN");
-    try {
-      const res = await fetchBookData(isbn);
-      console.log("Book data:", res.data);
-      alert("Book found!");
-    } catch (error) {
-      if (error.response && error.response.status === 404) {
-        alert("Book not found! You can add it manually.");
-        setIsbnToAdd(isbn);
-        setForceOpen(true);
-      } else {
-        alert("Something went wrong while fetching the book.");
-      }
-    }
-  };
-
+  
   return (
     <Box sx={{ p: 4, background: "linear-gradient(135deg, #e3f2fd, #bbdefb)", minHeight: "90vh" }}>
       {/* Header */}

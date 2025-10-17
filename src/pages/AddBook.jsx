@@ -1,65 +1,72 @@
-import React, { useState } from "react";
-import { Grid, Typography } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import ISBNForm from "../components/ISBNForm";
 import BookForm from "../components/BookForm";
-import Message from "../components/Message";
-import {fetchBookData} from "../api/api";
+import axios from "axios";
 
-const AddBook = () => {
-  const [isbn, setIsbn] = useState("");
-  const [bookData, setBookData] = useState(null);
+const AddBook = ({ closeDrawer, isbn: prefillISBN }) => {
+  const [isbn, setIsbn] = useState(prefillISBN || "");
   const [copies, setCopies] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [bookData, setBookData] = useState({});
   const [manualMode, setManualMode] = useState(false);
-  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (prefillISBN) {
+      fetchBook(); // fetch automatically if ISBN was passed
+    }
+  }, [prefillISBN]);
 
   const fetchBook = async () => {
-    if (!isbn.trim()) {
-      setMessage("Please enter ISBN.");
-      return;
-    }
+    if (!isbn) return alert("Please enter ISBN");
+    setLoading(true);
     try {
-      setLoading(true);
-      setMessage("");
-      const res = await fetchBookData(isbn);  
+      const res = await axios.get(`http://localhost:5000/api/book/fetchByISBN/${isbn}`);
       setBookData(res.data);
       setManualMode(false);
     } catch (err) {
-      setMessage("Book not found. Enter manually.");
-      setManualMode(true);
-      setBookData(null);
+      if (err.response && err.response.status === 404) {
+        alert("Book not found. Please enter manually.");
+        setManualMode(true);
+        setBookData({ isbn });
+      } else {
+        alert("Something went wrong while fetching the book.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const saveBook = async () => {
-    if (!bookData || !bookData.title) {
-      setMessage("Book title is required.");
-      return;
-    }
+    if (!bookData.title) return alert("Please enter book title");
+    setLoading(true);
     try {
-      setLoading(true);
-      setMessage("");
-      const payload = { manualData: bookData, copies };
-      const res = await api.post("/books/addBook", payload);
-      setMessage(`Book "${res.title}" saved successfully!`);
-      setBookData(null);
-      setIsbn("");
-      setCopies(1);
-      setManualMode(false);
+      const formData = new FormData();
+      for (let key in bookData) {
+        if (Array.isArray(bookData[key])) {
+          formData.append(key, JSON.stringify(bookData[key]));
+        } else {
+          formData.append(key, bookData[key]);
+        }
+      }
+      formData.append("copies", copies);
+
+      const res = await axios.post("http://localhost:5000/api/book/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      alert("Book saved successfully!");
+      closeDrawer();
     } catch (err) {
-      setMessage("Failed to save book.");
+      console.error(err);
+      alert("Error saving book");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Grid container spacing={2} direction="column" sx={{ maxWidth: 700, margin: "auto", mt: 4 }}>
-      <Typography variant="h5" gutterBottom>Add Book</Typography>
-
-      {!manualMode && !bookData && (
+    <Box>
+      {!manualMode && !bookData.title ? (
         <ISBNForm
           isbn={isbn}
           setIsbn={setIsbn}
@@ -69,11 +76,9 @@ const AddBook = () => {
           setManualMode={setManualMode}
           loading={loading}
         />
-      )}
-
-      {(bookData || manualMode) && (
+      ) : (
         <BookForm
-          bookData={bookData.data}
+          bookData={bookData}
           setBookData={setBookData}
           copies={copies}
           setCopies={setCopies}
@@ -81,9 +86,7 @@ const AddBook = () => {
           loading={loading}
         />
       )}
-
-      <Message text={message} />
-    </Grid>
+    </Box>
   );
 };
 

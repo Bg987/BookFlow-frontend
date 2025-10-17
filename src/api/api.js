@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "https://bookflow-1ceq.onrender.com/api"; // backend URL
-//http://localhost:5000/
+const BASE_URL = "http://localhost:5000/api"; // backend URL
+///https://bookflow-1ceq.onrender.com/
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
@@ -17,6 +17,9 @@ export const signupLibPre = (data) => api.post("/library/pre-signup", data);
 export const LoginLib = (data) => api.post("/library/login", data);
 export const DataLib = () => api.get("/library/libdata");
 
+//books apis
+export const fetchBookData = (isbn) => api.get(`/book/fetchByISBN/${isbn}`);
+
 //librarian apis
 export const LoginLibrarian = (data) =>
   api.post("/librarian/LoginLibrarian", data);
@@ -31,6 +34,5 @@ export const AddLibrarian = (data) => {
   });
 };
 
-//books apis
-export const fetchBookData = (isbn) => api.get(`${BASE_URL}/book/fetchByISBN/${isbn}`);
+
 export default api;

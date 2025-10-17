@@ -6,14 +6,16 @@ import LogoutButton from "../components/logout";
 import LibraryInfoCard from "../components/LibraryProfile";
 import LibrarianProfile from "../components/LibrarianProfile";
 import AddBook from "../pages/AddBook";
+import {fetchBookData} from "../api/api";
 
 const LibrarianDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [Library, setLibrary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [forceOpen, setForceOpen] = useState(false);
+  const [isbnToAdd, setIsbnToAdd] = useState("");
 
-  // Fetch librarian & library data
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -30,8 +32,24 @@ const LibrarianDashboard = () => {
     fetchProfile();
   }, []);
 
-  // Toggle drawer
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
+
+  const fetchBookByISBN = async (isbn) => {
+    if (!isbn) return alert("Please enter ISBN");
+    try {
+      const res = await fetchBookData(isbn);
+      console.log("Book data:", res.data);
+      alert("Book found!");
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        alert("Book not found! You can add it manually.");
+        setIsbnToAdd(isbn);
+        setForceOpen(true);
+      } else {
+        alert("Something went wrong while fetching the book.");
+      }
+    }
+  };
 
   return (
     <Box sx={{ p: 4, background: "linear-gradient(135deg, #e3f2fd, #bbdefb)", minHeight: "90vh" }}>
@@ -60,15 +78,15 @@ const LibrarianDashboard = () => {
       ) : profile ? (
         <Grid container spacing={4}>
           <Grid item xs={12}>
-            <LibrarianProfile 
+            <LibrarianProfile
               librarian_data={profile?.librarian_data}
               userData={profile?.userData}
-              loading={loading}  
+              loading={loading}
             />
-            <LibraryInfoCard 
-              library={Library} 
-              extra="librarian" 
-              loading={loading}  
+            <LibraryInfoCard
+              library={Library}
+              extra="librarian"
+              loading={loading}
             />
           </Grid>
         </Grid>
@@ -78,28 +96,20 @@ const LibrarianDashboard = () => {
         </Typography>
       )}
 
-      {/* Drawer for AddBook */}
+      {/* Drawer */}
       <Drawer
         anchor="right"
-        open={drawerOpen}
-        onClose={toggleDrawer}
-        PaperProps={{
-          sx: {
-            width: "100%",
-            maxWidth: 800,
-            p: 3,
-            overflowY: "auto",
-          },
-        }}
+        open={drawerOpen || forceOpen}
+        onClose={() => { setDrawerOpen(false); setForceOpen(false); setIsbnToAdd(""); }}
+        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
       >
-        {/* Close button at the top */}
         <Box display="flex" justifyContent="flex-end" mb={2}>
-          <IconButton onClick={toggleDrawer}>
+          <IconButton onClick={() => { setDrawerOpen(false); setForceOpen(false); setIsbnToAdd(""); }}>
             <CloseIcon />
           </IconButton>
         </Box>
 
-        <AddBook closeDrawer={toggleDrawer} />
+        <AddBook closeDrawer={() => { setDrawerOpen(false); setForceOpen(false); setIsbnToAdd(""); }} isbn={isbnToAdd} />
       </Drawer>
     </Box>
   );

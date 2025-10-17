@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import ISBNForm from "../components/ISBNForm";
 import BookForm from "../components/BookForm";
-import axios from "axios";
+import fetchBookData from "../api/api";
 
 const AddBook = ({ closeDrawer, isbn: prefillISBN }) => {
   const [isbn, setIsbn] = useState(prefillISBN || "");
@@ -21,7 +21,7 @@ const AddBook = ({ closeDrawer, isbn: prefillISBN }) => {
     if (!isbn) return alert("Please enter ISBN");
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/book/fetchByISBN/${isbn}`);
+      const res = await fetchBookData(isbn);
       setBookData(res.data);
       setManualMode(false);
     } catch (err) {

@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress, Button, Grid, Drawer, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Button,
+  Grid,
+  Drawer,
+  IconButton,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { LibrarianData } from "../api/api";
 import LogoutButton from "../components/logout";
 import LibraryInfoCard from "../components/LibraryProfile";
 import LibrarianProfile from "../components/LibrarianProfile";
 import AddBook from "../pages/AddBook";
-import {fetchBookData} from "../api/api";
 
 const LibrarianDashboard = () => {
   const [profile, setProfile] = useState(null);
@@ -31,15 +38,41 @@ const LibrarianDashboard = () => {
     };
     fetchProfile();
   }, []);
+  const handleBookAdded = () => {
+    setLibrary((prev) => ({
+      ...prev,
+      total_books: (prev.total_books || 0) + 1,
+    }));
+  };
 
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
-  
+
   return (
-    <Box sx={{ p: 4, background: "linear-gradient(135deg, #e3f2fd, #bbdefb)", minHeight: "90vh" }}>
+    <Box
+      sx={{
+        p: 4,
+        background: "linear-gradient(135deg, #e3f2fd, #bbdefb)",
+        minHeight: "90vh",
+      }}
+    >
       {/* Header */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0d47a1" }}>
-          Welcome, {profile?.userData?.username || profile?.librarian_data?.name || "Librarian"} 👋
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: "bold", color: "#0d47a1" }}
+        >
+          Welcome,{" "}
+          {profile?.userData?.username ||
+            profile?.librarian_data?.name ||
+            "Librarian"}{" "}
+          👋
         </Typography>
         <LogoutButton redirectTo="/" />
       </Box>
@@ -83,16 +116,36 @@ const LibrarianDashboard = () => {
       <Drawer
         anchor="right"
         open={drawerOpen || forceOpen}
-        onClose={() => { setDrawerOpen(false); setForceOpen(false); setIsbnToAdd(""); }}
-        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
+        onClose={() => {
+          setDrawerOpen(false);
+          setForceOpen(false);
+          setIsbnToAdd("");
+        }}
+        PaperProps={{
+          sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" },
+        }}
       >
         <Box display="flex" justifyContent="flex-end" mb={2}>
-          <IconButton onClick={() => { setDrawerOpen(false); setForceOpen(false); setIsbnToAdd(""); }}>
+          <IconButton
+            onClick={() => {
+              setDrawerOpen(false);
+              setForceOpen(false);
+              setIsbnToAdd("");
+            }}
+          >
             <CloseIcon />
           </IconButton>
         </Box>
 
-        <AddBook closeDrawer={() => { setDrawerOpen(false); setForceOpen(false); setIsbnToAdd(""); }} isbn={isbnToAdd} />
+        <AddBook
+          closeDrawer={() => {
+            setDrawerOpen(false);
+            setForceOpen(false);
+            setIsbnToAdd("");
+          }}
+          isbn={isbnToAdd}
+          handleBookAdded={handleBookAdded}
+        />
       </Drawer>
     </Box>
   );

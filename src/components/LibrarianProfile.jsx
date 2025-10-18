@@ -46,7 +46,7 @@ const LibrarianProfile = ({ librarian_data, userData, loading }) => {
           {loading ? (
             <Skeleton variant="text" width={200} height={30} />
           ) : (
-            <Typography variant="h5" fontWeight="bold">
+            <Typography variant="h4" fontWeight="bold">
               {librarian_data.name || userData.username}
             </Typography>
           )}
@@ -54,7 +54,7 @@ const LibrarianProfile = ({ librarian_data, userData, loading }) => {
           {loading ? (
             <Skeleton variant="text" width={120} />
           ) : (
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body3" color="textSecondary">
               Role: {userData.role}
             </Typography>
           )}

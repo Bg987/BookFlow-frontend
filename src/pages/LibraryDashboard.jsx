@@ -17,7 +17,8 @@ export default function LibraryDashboard() {
       const response = await DataLib();
       setLibData(response.data.data[0]);
     } catch (error) {
-      setLibData(error);
+      alert(error.response.data.message);
+      setLibData("");
       console.error("Error fetching library data:", error);
     } finally {
       setLoading(false);

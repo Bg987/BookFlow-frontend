@@ -86,21 +86,7 @@ const LibrarianProfile = ({ librarian_data, userData, loading }) => {
               </>
             )}
           </Grid>
-
-          <Grid item xs={12} sm={6}>
-            {loading ? (
-              <Skeleton variant="text" width={150} />
-            ) : (
-              <Box display="flex" alignItems="center" gap={1}>
-                <Typography variant="body1">
-                  <strong>Verified:</strong>
-                </Typography>
-                {librarian_data.is_verified ? "✅" : "❌"}
-              </Box>
-            )}
-
             {loading ? <Skeleton variant="text" width={180} /> : displayField("Reference ID", userData.referenceId)}
-          </Grid>
         </Grid>
       </CardContent>
     </Card>

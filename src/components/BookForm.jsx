@@ -135,7 +135,7 @@ const AddBookForm = ({ initialIsbn = "", handleBookAdded }) => {
         gutterBottom
         sx={{ fontWeight: "bold", color: "#1976d2" }}
       >
-        Add New Book
+        Add New Book : only copies and isbn chenged if not entered
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit}>

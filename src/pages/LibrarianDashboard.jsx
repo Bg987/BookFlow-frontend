@@ -28,10 +28,12 @@ const LibrarianDashboard = () => {
       try {
         const res = await LibrarianData();
         const data = res.data.Data;
+        console.log(res);
         setProfile(data);
         setLibrary(data.library_data);
       } catch (err) {
-        console.error("Error fetching librarian data:", err);
+        alert(err.response.data.message);
+        console.error("Error fetching librarian data:", err.response.data.message);
       } finally {
         setLoading(false);
       }
@@ -125,8 +127,8 @@ const LibrarianDashboard = () => {
           sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" },
         }}
       >
-        <Box display="flex" justifyContent="flex-end" mb={2}>
-          <IconButton
+        <Box display="flex" justifyContent="flex-en" mb={2}>
+           <IconButton
             onClick={() => {
               setDrawerOpen(false);
               setForceOpen(false);
@@ -135,9 +137,7 @@ const LibrarianDashboard = () => {
           >
             <CloseIcon />
           </IconButton>
-        </Box>
-
-        <AddBook
+          <AddBook
           closeDrawer={() => {
             setDrawerOpen(false);
             setForceOpen(false);
@@ -146,6 +146,7 @@ const LibrarianDashboard = () => {
           isbn={isbnToAdd}
           handleBookAdded={handleBookAdded}
         />
+        </Box>
       </Drawer>
     </Box>
   );

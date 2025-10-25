@@ -23,10 +23,8 @@ export const LoginLib = (data) => api.post("/library/login", data);
 export const DataLib = () => api.get("/library/libdata");
 
 //books apis
-export const AddBook = (data) => {
-  console.log(BASE_URL);
-  return api2.post("/book/addBook", data);
-}
+export const AddBook = (data) => api2.post("/book/addBook", data);
+export const getBooks = () => api.get(`/book/getBooks`);
 
 //librarian apis
 export const LoginLibrarian = (data) =>

@@ -131,11 +131,11 @@ const AddBookForm = ({ initialIsbn = "", handleBookAdded }) => {
       }}
     >
       <Typography
-        variant="h5"
+        fontSize={16}
         gutterBottom
-        sx={{ fontWeight: "bold", color: "#1976d2" }}
+        sx={{ fontWeight: "bold", color: "#b40909ff" }}
       >
-        Add New Book : only copies and isbn chenged if not entered
+        Note : Already registered books allow updates to ISBN and copies only. Other details cannot be modified.
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit}>

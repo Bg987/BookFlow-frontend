@@ -9,45 +9,42 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+
 import { LibrarianData } from "../api/api";
 import LogoutButton from "../components/logout";
 import LibraryInfoCard from "../components/LibraryProfile";
 import LibrarianProfile from "../components/LibrarianProfile";
 import AddBook from "../pages/AddBook";
+import BookList from "../components/BookList";
+import BookDetails from "../components/BookDetails";
 
 const LibrarianDashboard = () => {
   const [profile, setProfile] = useState(null);
   const [Library, setLibrary] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [forceOpen, setForceOpen] = useState(false);
-  const [isbnToAdd, setIsbnToAdd] = useState("");
 
+  // Drawer states
+  const [drawerOpenAddBook, setDrawerOpenAddBook] = useState(false);
+  const [drawerOpenBookData, setDrawerOpenBookData] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
+
+  // Fetch profile + library info
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await LibrarianData();
         const data = res.data.Data;
-        console.log(res);
         setProfile(data);
         setLibrary(data.library_data);
       } catch (err) {
-        alert(err.response.data.message);
-        console.error("Error fetching librarian data:", err.response.data.message);
+        alert(err.response?.data?.message || "Failed to fetch data");
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
     fetchProfile();
   }, []);
-  const handleBookAdded = () => {
-    setLibrary((prev) => ({
-      ...prev,
-      total_books: (prev.total_books || 0) + 1,
-    }));
-  };
-
-  const toggleDrawer = () => setDrawerOpen((prev) => !prev);
 
   return (
     <Box
@@ -66,24 +63,32 @@ const LibrarianDashboard = () => {
           mb: 3,
         }}
       >
-        <Typography
-          variant="h4"
-          sx={{ fontWeight: "bold", color: "#0d47a1" }}
-        >
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0d47a1" }}>
           Welcome,{" "}
-          {profile?.userData?.username ||
-            profile?.librarian_data?.name ||
-            "Librarian"}{" "}
+          {profile?.userData?.username || profile?.librarian_data?.name || "Librarian"}{" "}
           👋
         </Typography>
         <LogoutButton redirectTo="/" />
       </Box>
 
-      {/* Action buttons */}
+      {/* Action Buttons */}
       <Grid container spacing={2} sx={{ my: 3 }}>
         <Grid item>
-          <Button variant="contained" color="primary" onClick={toggleDrawer}>
-            {drawerOpen ? "Close Add Book" : "Add Book"}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setDrawerOpenAddBook(true)}
+          >
+            Add Book
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setDrawerOpenBookData(true)}
+          >
+            Book Data
           </Button>
         </Grid>
       </Grid>
@@ -94,59 +99,78 @@ const LibrarianDashboard = () => {
           <CircularProgress />
         </Box>
       ) : profile ? (
-        <Grid container spacing={4}>
-          <Grid item xs={12}>
-            <LibrarianProfile
-              librarian_data={profile?.librarian_data}
-              userData={profile?.userData}
-              loading={loading}
-            />
-            <LibraryInfoCard
-              library={Library}
-              extra="librarian"
-              loading={loading}
-            />
+        <>
+          <Grid container spacing={4}>
+            <Grid item xs={12}>
+              <LibrarianProfile
+                librarian_data={profile?.librarian_data}
+                userData={profile?.userData}
+                loading={loading}
+              />
+              <LibraryInfoCard
+                library={Library}
+                extra="librarian"
+                loading={loading}
+              />
+            </Grid>
           </Grid>
-        </Grid>
+        </>
       ) : (
         <Typography textAlign="center" mt={5}>
           Failed to load librarian data.
         </Typography>
       )}
 
-      {/* Drawer */}
+      {/* Add Book Drawer */}
       <Drawer
         anchor="right"
-        open={drawerOpen || forceOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setForceOpen(false);
-          setIsbnToAdd("");
-        }}
-        PaperProps={{
-          sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" },
-        }}
+        open={drawerOpenAddBook}
+        onClose={() => setDrawerOpenAddBook(false)}
+        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
       >
-        <Box display="flex" justifyContent="flex-en" mb={2}>
-           <IconButton
-            onClick={() => {
-              setDrawerOpen(false);
-              setForceOpen(false);
-              setIsbnToAdd("");
-            }}
-          >
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <IconButton onClick={() => setDrawerOpenAddBook(false)}>
             <CloseIcon />
           </IconButton>
-          <AddBook
-          closeDrawer={() => {
-            setDrawerOpen(false);
-            setForceOpen(false);
-            setIsbnToAdd("");
-          }}
-          isbn={isbnToAdd}
-          handleBookAdded={handleBookAdded}
-        />
         </Box>
+        <AddBook closeDrawer={() => setDrawerOpenAddBook(false)} />
+      </Drawer>
+
+      {/* Book Data Drawer */}
+      <Drawer
+        anchor="right"
+        open={drawerOpenBookData}
+        onClose={() => setDrawerOpenBookData(false)}
+        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
+      >
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <IconButton onClick={() => setDrawerOpenBookData(false)}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <BookList onBookClick={(book) => setSelectedBook(book)} />
+      </Drawer>
+
+      {/* Book Details Drawer */}
+      <Drawer
+        anchor="right"
+        open={!!selectedBook}
+        onClose={() => setSelectedBook(null)}
+        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
+      >
+        {selectedBook && (
+          <Box>
+            <Box display="flex" justifyContent="flex-end" mb={2}>
+              <IconButton onClick={() => setSelectedBook(null)}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+            <BookDetails
+              bookData={selectedBook}
+              closeDrawer={() => setSelectedBook(null)}
+            />
+          </Box>
+        )}
       </Drawer>
     </Box>
   );

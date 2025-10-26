@@ -1,12 +1,11 @@
 import React from "react";
 import AddBookForm from "../components/BookForm";
 
-const AddBook = ({  isbn,handleBookAdded }) => {
+const AddBook = ({  isbn}) => {
   return (
     <div>
       <AddBookForm
         initialIsbn={isbn}
-        handleBookAdded= {handleBookAdded}
       />
     </div>
   );

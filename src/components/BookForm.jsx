@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { AddBook } from "../api/api";
 
-const AddBookForm = ({ initialIsbn = "", handleBookAdded }) => {
+const AddBookForm = ({ initialIsbn = "", }) => {
   const [formData, setFormData] = useState({
     title: "",
     authors: "",
@@ -81,7 +81,7 @@ const AddBookForm = ({ initialIsbn = "", handleBookAdded }) => {
 
       const res = await AddBook(data);
       setMessage(res.data.message || "Book added successfully!");
-      handleBookAdded();
+      //handleBookAdded();
 
       // Reset form
       setTimeout(() => {
@@ -101,7 +101,7 @@ const AddBookForm = ({ initialIsbn = "", handleBookAdded }) => {
           copies: 1,
           isbn: "",
         });
-      }, 1000);
+      }, 2000);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Something went wrong. Try again.");

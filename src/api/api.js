@@ -25,10 +25,13 @@ export const DataLib = () => api.get("/library/libdata");
 //books apis
 export const AddBook = (data) => api2.post("/book/addBook", data);
 export const getBooks = () => api.get(`/book/getBooks`);
+export const updateBook = (bookId, updatedData) =>
+  api.patch(`/book/updateBook/${bookId}`, updatedData);
 
 //librarian apis
 export const LoginLibrarian = (data) =>
   api.post("/librarian/LoginLibrarian", data);
+
 
 export const LibrarianData = () =>
   api.get(`/librarian/getLibrarian`);

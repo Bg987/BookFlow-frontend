@@ -28,6 +28,9 @@ const LibrarianDashboard = () => {
   const [drawerOpenBookData, setDrawerOpenBookData] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
 
+  // Local book state (to trigger refresh in BookList)
+  const [books, setBooks] = useState([]);
+
   // Fetch profile + library info
   useEffect(() => {
     const fetchProfile = async () => {
@@ -45,6 +48,15 @@ const LibrarianDashboard = () => {
     };
     fetchProfile();
   }, []);
+
+  
+  const handleBookUpdate = (updatedBook) => {
+    setBooks((prevBooks) =>
+      prevBooks.map((b) =>
+        b.book_id === updatedBook.book_id ? updatedBook : b
+      )
+    );
+  };
 
   return (
     <Box
@@ -65,7 +77,9 @@ const LibrarianDashboard = () => {
       >
         <Typography variant="h4" sx={{ fontWeight: "bold", color: "#0d47a1" }}>
           Welcome,{" "}
-          {profile?.userData?.username || profile?.librarian_data?.name || "Librarian"}{" "}
+          {profile?.userData?.username ||
+            profile?.librarian_data?.name ||
+            "Librarian"}{" "}
           👋
         </Typography>
         <LogoutButton redirectTo="/" />
@@ -148,9 +162,12 @@ const LibrarianDashboard = () => {
             <CloseIcon />
           </IconButton>
         </Box>
-        <BookList onBookClick={(book) => setSelectedBook(book)} />
+        <BookList
+          onBookClick={(book) => setSelectedBook(book)}
+          books={books}
+          setBooks={setBooks}
+        />
       </Drawer>
-
       {/* Book Details Drawer */}
       <Drawer
         anchor="right"
@@ -168,6 +185,7 @@ const LibrarianDashboard = () => {
             <BookDetails
               bookData={selectedBook}
               closeDrawer={() => setSelectedBook(null)}
+              onUpdate={handleBookUpdate} 
             />
           </Box>
         )}

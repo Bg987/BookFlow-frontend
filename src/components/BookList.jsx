@@ -8,26 +8,30 @@ import {
   Grid,
   Button,
 } from "@mui/material";
-import { getBooks } from "../api/api"; 
+import { getBooks } from "../api/api";
 
-const BookList = ({ onBookClick }) => {
-  const [books, setBooks] = useState([]);
+const BookList = ({ onBookClick, books, setBooks }) => {
   const [loading, setLoading] = useState(true);
 
+  const fetchBooks = async () => {
+    try {
+      const res = await getBooks();
+      setBooks(res.data.books || []);
+    } catch (err) {
+      console.error("Error fetching books:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch only if parent doesn't already have data
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const res = await getBooks();
-        console.log(res);
-        setBooks(res.data.books || []);
-      } catch (err) {
-        console.error("Error fetching books:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBooks();
-  }, []);
+    if (!books || books.length === 0) {
+      fetchBooks();
+    } else {
+      setLoading(false);
+    }
+  }, []); // fetch once
 
   if (loading)
     return (
@@ -42,7 +46,7 @@ const BookList = ({ onBookClick }) => {
         All Books in Library
       </Typography>
 
-      {books.length === 0 ? (
+      {(!books || books.length === 0) ? (
         <Typography>No books found.</Typography>
       ) : (
         <Grid container spacing={2}>
@@ -64,7 +68,7 @@ const BookList = ({ onBookClick }) => {
                     variant="contained"
                     size="small"
                     sx={{ mt: 1 }}
-                    onClick={() => onBookClick(book)} // Pass entire book object
+                    onClick={() => onBookClick(book)}
                   >
                     Edit
                   </Button>

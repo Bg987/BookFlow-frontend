@@ -17,6 +17,7 @@ import LibrarianProfile from "../components/LibrarianProfile";
 import AddBook from "../pages/AddBook";
 import BookList from "../components/BookList";
 import BookDetails from "../components/BookDetails";
+import QRScanner from "../components/QRScanner"; // ✅ imported new component
 
 const LibrarianDashboard = () => {
   const [profile, setProfile] = useState(null);
@@ -26,12 +27,12 @@ const LibrarianDashboard = () => {
   // Drawer states
   const [drawerOpenAddBook, setDrawerOpenAddBook] = useState(false);
   const [drawerOpenBookData, setDrawerOpenBookData] = useState(false);
+  const [drawerOpenQR, setDrawerOpenQR] = useState(false); // ✅ new drawer for QR
   const [selectedBook, setSelectedBook] = useState(null);
 
-  // Local book state (to trigger refresh in BookList)
   const [books, setBooks] = useState([]);
 
-  // Fetch profile + library info
+  // Fetch librarian + library data
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -49,7 +50,6 @@ const LibrarianDashboard = () => {
     fetchProfile();
   }, []);
 
-  
   const handleBookUpdate = (updatedBook) => {
     setBooks((prevBooks) =>
       prevBooks.map((b) =>
@@ -103,6 +103,15 @@ const LibrarianDashboard = () => {
             onClick={() => setDrawerOpenBookData(true)}
           >
             Book Data
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => setDrawerOpenQR(true)}
+          >
+            Scan Book QR
           </Button>
         </Grid>
       </Grid>
@@ -168,6 +177,7 @@ const LibrarianDashboard = () => {
           setBooks={setBooks}
         />
       </Drawer>
+
       {/* Book Details Drawer */}
       <Drawer
         anchor="right"
@@ -185,10 +195,25 @@ const LibrarianDashboard = () => {
             <BookDetails
               bookData={selectedBook}
               closeDrawer={() => setSelectedBook(null)}
-              onUpdate={handleBookUpdate} 
+              onUpdate={handleBookUpdate}
             />
           </Box>
         )}
+      </Drawer>
+
+      {/* ✅ QR Scanner Drawer */}
+      <Drawer
+        anchor="right"
+        open={drawerOpenQR}
+        onClose={() => setDrawerOpenQR(false)}
+        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
+      >
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <IconButton onClick={() => setDrawerOpenQR(false)}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <QRScanner />
       </Drawer>
     </Box>
   );

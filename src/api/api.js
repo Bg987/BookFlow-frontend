@@ -24,7 +24,10 @@ export const DataLib = () => api.get("/library/libdata");
 
 //books apis
 export const AddBook = (data) => api2.post("/book/addBook", data);
-export const getBooks = () => api.get(`/book/getBooks`);
+export const getBooks = (filters = {}) =>
+  api.get(`/book/getBooks`, { params: filters });
+export const getBookDetails = (scannedData) =>
+  api.get(`/book/getBookDetails/${scannedData}`);
 export const updateBook = (bookId, updatedData) =>
   api.patch(`/book/updateBook/${bookId}`, updatedData);
 

@@ -17,7 +17,7 @@ import LibrarianProfile from "../components/LibrarianProfile";
 import AddBook from "../pages/AddBook";
 import BookList from "../components/BookList";
 import BookDetails from "../components/BookDetails";
-import QRScanner from "../components/QRScanner"; // ✅ imported new component
+import QRScanner from "../components/QRScanner"; 
 
 const LibrarianDashboard = () => {
   const [profile, setProfile] = useState(null);
@@ -27,7 +27,7 @@ const LibrarianDashboard = () => {
   // Drawer states
   const [drawerOpenAddBook, setDrawerOpenAddBook] = useState(false);
   const [drawerOpenBookData, setDrawerOpenBookData] = useState(false);
-  const [drawerOpenQR, setDrawerOpenQR] = useState(false); // ✅ new drawer for QR
+  const [drawerOpenQR, setDrawerOpenQR] = useState(false); 
   const [selectedBook, setSelectedBook] = useState(null);
 
   const [books, setBooks] = useState([]);
@@ -201,7 +201,7 @@ const LibrarianDashboard = () => {
         )}
       </Drawer>
 
-      {/* ✅ QR Scanner Drawer */}
+      
       <Drawer
         anchor="right"
         open={drawerOpenQR}

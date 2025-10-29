@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Html5Qrcode } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeScanner } from "html5-qrcode";
 import {
   Box,
   Typography,
@@ -12,116 +12,112 @@ import {
   Paper,
 } from "@mui/material";
 import { getBookDetails } from "../api/api";
-import LibraryInfoCard from "./LibraryProfile"; // ✅ import here
+import LibraryInfoCard from "./LibraryProfile";
 
-const QRScanner = ({ open }) => {
+const QRScanner = () => {
+  const [scanning, setScanning] = useState(false);
   const [scannedData, setScannedData] = useState(null);
   const [bookData, setBookData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const scannerRef = useRef(null);
 
-  // 🎯 Start scanning when Drawer opens
-  useEffect(() => {
-    if (!open) return;
-
-    const initScanner = async () => {
-      try {
-        const html5QrCode = new Html5Qrcode("reader");
-        scannerRef.current = html5QrCode;
-
-        const cameras = await Html5Qrcode.getCameras();
-        if (!cameras || cameras.length === 0) {
-          setError("No camera found. Try uploading an image instead.");
-          return;
-        }
-
-        await html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          (decodedText) => {
-            html5QrCode.stop().then(() => {
-              setScannedData(decodedText);
-            });
-          },
-          (scanError) => console.warn("Scanning error:", scanError)
-        );
-      } catch (err) {
-        console.error("Camera init error:", err);
-        setError("Camera permission denied or unavailable.");
+  const cleanupReader = async () => {
+    const readerElem = document.getElementById("reader");
+    if (readerElem) {
+      const video = readerElem.querySelector("video");
+      if (video?.srcObject) {
+        video.srcObject.getTracks().forEach((t) => t.stop());
       }
-    };
+      readerElem.innerHTML = "";
+    }
+  };
 
-    initScanner();
+  useEffect(() => {
+    if (!scanning) return;
+
+    const html5QrCode = new Html5QrcodeScanner("reader", {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      rememberLastUsedCamera: true,
+      showTorchButtonIfSupported: true,
+      showZoomSliderIfSupported: true,
+    });
+
+    html5QrCode.render(
+      (decodedText) => {
+        stopScanning();
+        setScannedData(decodedText);
+      },
+      (scanError) => console.warn(scanError)
+    );
+
+    scannerRef.current = html5QrCode;
 
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
-        scannerRef.current.clear().catch(() => {});
-      }
+      stopScanning();
     };
-  }, [open]);
 
-  // 🚀 Fetch book details after QR is scanned
-  useEffect(() => {
-    const fetchBookDetails = async () => {
-      if (!scannedData) return;
-      setLoading(true);
-      setError("");
+  }, [scanning]);
+
+  const stopScanning = async () => {
+    setScanning(false);
+    if (scannerRef.current) {
       try {
-        const response = await getBookDetails(scannedData);
-        setBookData(response.data);
+        await scannerRef.current.clear();
       } catch (err) {
-        console.error(err);
-        setError("Failed to fetch book details. Invalid QR or server error.");
+        console.warn("Scanner clear error:", err);
       } finally {
-        setLoading(false);
+        await cleanupReader();
+        scannerRef.current = null;
       }
-    };
-    fetchBookDetails();
-  }, [scannedData]);
+    } else {
+      await cleanupReader();
+    }
+  };
 
-  // 🖼 Manual image upload
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
     if (!file) return;
     try {
       const html5QrCode = new Html5Qrcode("reader");
       const result = await html5QrCode.scanFile(file, true);
       setScannedData(result);
+      await cleanupReader();
     } catch (err) {
       console.error("Image scan error:", err);
       setError("Failed to read QR from image.");
     }
   };
 
-  // 🔄 Restart scanner (no reload)
-  const handleScanAnother = async () => {
+  useEffect(() => {
+    const fetchBook = async () => {
+      if (!scannedData) return;
+      setLoading(true);
+      setError("");
+      try {
+        const res = await getBookDetails(scannedData);
+        setBookData(res.data);
+      } catch (err) {
+        console.error(err);
+        setError("Invalid QR or server error.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBook();
+  }, [scannedData]);
+
+  const handleScanAnother = () => {
     setScannedData(null);
     setBookData(null);
     setError("");
-
-    if (scannerRef.current) {
-      try {
-        await scannerRef.current.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
-          (decodedText) => {
-            scannerRef.current.stop().then(() => {
-              setScannedData(decodedText);
-            });
-          }
-        );
-      } catch (err) {
-        console.error("Restart error:", err);
-        setError("Unable to restart camera.");
-      }
-    }
+    setScanning(true);
   };
 
   return (
     <Box p={3}>
-      <Typography variant="h5" mb={2}>
+      <Typography variant="h5" mb={2} textAlign="center">
         📷 Scan or Upload QR
       </Typography>
 
@@ -137,8 +133,23 @@ const QRScanner = ({ open }) => {
               mx: "auto",
             }}
           />
+
           <Box textAlign="center" mt={2}>
-            <Button variant="outlined" component="label">
+            {!scanning ? (
+              <Button variant="contained" onClick={() => setScanning(true)}>
+                Start Scanning
+              </Button>
+            ) : (
+              <Button variant="outlined" color="error" onClick={stopScanning}>
+                Close Scanner
+              </Button>
+            )}
+
+            <Button
+              variant="outlined"
+              component="label"
+              sx={{ ml: 2 }}
+            >
               Upload QR Image
               <input
                 type="file"
@@ -170,7 +181,6 @@ const QRScanner = ({ open }) => {
           </Typography>
 
           <Grid container spacing={3}>
-            {/* Book Cover */}
             <Grid item xs={12} md={4}>
               <Card sx={{ mb: 2 }}>
                 <CardContent sx={{ textAlign: "center" }}>
@@ -188,11 +198,9 @@ const QRScanner = ({ open }) => {
               </Card>
             </Grid>
 
-            {/* Book + Librarian + Library */}
             <Grid item xs={12} md={8}>
               <Card sx={{ p: 2 }}>
                 <CardContent>
-                  {/* Book details (filtered fields) */}
                   {Object.entries(bookData.book)
                     .filter(
                       ([key]) =>
@@ -223,13 +231,13 @@ const QRScanner = ({ open }) => {
                       </Box>
                     ))}
 
-                  {/* Librarian Details */}
                   <Typography variant="h6" mt={2}>
                     👤 Librarian Details
                   </Typography>
-                                  <Typography>Name: {bookData.librarian?.name}</Typography>
-                                  <Typography>DOB: {bookData.librarian?.dob}</Typography>
-                                  <Box mt={3}>
+                  <Typography>Name: {bookData.librarian?.name}</Typography>
+                  <Typography>DOB: {bookData.librarian?.dob}</Typography>
+
+                  <Box mt={3}>
                     <LibraryInfoCard
                       library={bookData.library}
                       extra=""
@@ -240,7 +248,6 @@ const QRScanner = ({ open }) => {
               </Card>
             </Grid>
           </Grid>
-
           <Box textAlign="center" mt={3}>
             <Button variant="contained" onClick={handleScanAnother}>
               🔄 Scan Another

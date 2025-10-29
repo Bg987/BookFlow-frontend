@@ -26,9 +26,7 @@ const QRScanner = () => {
     const readerElem = document.getElementById("reader");
     if (readerElem) {
       const video = readerElem.querySelector("video");
-      if (video?.srcObject) {
-        video.srcObject.getTracks().forEach((t) => t.stop());
-      }
+      if (video?.srcObject) video.srcObject.getTracks().forEach((t) => t.stop());
       readerElem.innerHTML = "";
     }
   };
@@ -53,11 +51,7 @@ const QRScanner = () => {
     );
 
     scannerRef.current = html5QrCode;
-
-    return () => {
-      stopScanning();
-    };
-
+    return () => stopScanning();
   }, [scanning]);
 
   const stopScanning = async () => {
@@ -71,9 +65,7 @@ const QRScanner = () => {
         await cleanupReader();
         scannerRef.current = null;
       }
-    } else {
-      await cleanupReader();
-    }
+    } else await cleanupReader();
   };
 
   const handleFileUpload = async (e) => {
@@ -116,8 +108,14 @@ const QRScanner = () => {
   };
 
   return (
-    <Box p={3}>
-      <Typography variant="h5" mb={2} textAlign="center">
+    <Box p={{ xs: 2, sm: 3 }}>
+      <Typography
+        variant="h5"
+        mb={3}
+        textAlign="center"
+        fontWeight="bold"
+        color="primary"
+      >
         📷 Scan or Upload QR
       </Typography>
 
@@ -126,11 +124,13 @@ const QRScanner = () => {
           <Box
             id="reader"
             sx={{
-              width: 320,
+              width: "100%",
+              maxWidth: 340,
               height: 320,
-              border: "2px solid #ccc",
-              borderRadius: 2,
+              border: "2px solid #90caf9",
+              borderRadius: 3,
               mx: "auto",
+              boxShadow: 3,
             }}
           />
 
@@ -175,21 +175,43 @@ const QRScanner = () => {
       )}
 
       {bookData && (
-        <Paper elevation={4} sx={{ mt: 3, p: 3, borderRadius: 3 }}>
-          <Typography variant="h5" fontWeight="bold" gutterBottom>
+        <Paper
+          elevation={5}
+          sx={{
+            mt: 4,
+            p: { xs: 2, sm: 3 },
+            borderRadius: 4,
+            background: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%)",
+          }}
+        >
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            gutterBottom
+            color="primary.dark"
+            textAlign="center"
+          >
             📘 {bookData.book.title}
           </Typography>
 
           <Grid container spacing={3}>
+            {/* Book Cover */}
             <Grid item xs={12} md={4}>
-              <Card sx={{ mb: 2 }}>
+              <Card
+                sx={{
+                  mb: 2,
+                  borderRadius: 3,
+                  boxShadow: 3,
+                  overflow: "hidden",
+                }}
+              >
                 <CardContent sx={{ textAlign: "center" }}>
                   <img
                     src={bookData.book.cover}
                     alt="Book Cover"
                     style={{
                       width: "100%",
-                      maxHeight: "350px",
+                      maxHeight: "360px",
                       borderRadius: "8px",
                       objectFit: "cover",
                     }}
@@ -198,9 +220,26 @@ const QRScanner = () => {
               </Card>
             </Grid>
 
+            {/* Book + Librarian + Library Info */}
             <Grid item xs={12} md={8}>
-              <Card sx={{ p: 2 }}>
+              <Card
+                sx={{
+                  p: 2,
+                  borderRadius: 3,
+                  boxShadow: 3,
+                  backgroundColor: "#ffffffcc",
+                }}
+              >
                 <CardContent>
+                  {/* Book Details */}
+                  <Typography
+                    variant="h6"
+                    color="primary"
+                    fontWeight="bold"
+                    gutterBottom
+                  >
+                    📖 Book Details
+                  </Typography>
                   {Object.entries(bookData.book)
                     .filter(
                       ([key]) =>
@@ -231,13 +270,29 @@ const QRScanner = () => {
                       </Box>
                     ))}
 
-                  <Typography variant="h6" mt={2}>
+                  {/* Librarian Section */}
+                  <Typography
+                    variant="h6"
+                    color="secondary"
+                    fontWeight="bold"
+                    mt={3}
+                    gutterBottom
+                  >
                     👤 Librarian Details
                   </Typography>
                   <Typography>Name: {bookData.librarian?.name}</Typography>
                   <Typography>DOB: {bookData.librarian?.dob}</Typography>
 
+                  {/* Library Info */}
                   <Box mt={3}>
+                    <Typography
+                      variant="h6"
+                      color="success.main"
+                      fontWeight="bold"
+                      gutterBottom
+                    >
+                      🏛 Library Information
+                    </Typography>
                     <LibraryInfoCard
                       library={bookData.library}
                       extra=""
@@ -248,8 +303,14 @@ const QRScanner = () => {
               </Card>
             </Grid>
           </Grid>
+
           <Box textAlign="center" mt={3}>
-            <Button variant="contained" onClick={handleScanAnother}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleScanAnother}
+              sx={{ borderRadius: 3 }}
+            >
               🔄 Scan Another
             </Button>
           </Box>

@@ -21,6 +21,7 @@ export const resetPass = (data) => api.post("/resetPass",data);
 export const signupLibPre = (data) => api.post("/library/pre-signup", data);
 export const LoginLib = (data) => api.post("/library/login", data);
 export const DataLib = () => api.get("/library/libdata");
+export const DataLibraians = () => api.get("/library/librariansdata");
 
 //books apis
 export const AddBook = (data) => api2.post("/book/addBook", data);
@@ -34,11 +35,8 @@ export const updateBook = (bookId, updatedData) =>
 //librarian apis
 export const LoginLibrarian = (data) =>
   api.post("/librarian/LoginLibrarian", data);
-
-
 export const LibrarianData = () =>
   api.get(`/librarian/getLibrarian`);
-
 export const AddLibrarian = (data) => api2.post(`/librarian/AddLibrarian`, data);
 
 

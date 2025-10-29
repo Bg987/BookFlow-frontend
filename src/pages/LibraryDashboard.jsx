@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { DataLib } from "../api/api";
+import LibrariansData from "../components/LibrariansData";
 import LibraryInfoCard from "../components/LibraryProfile";
 import LogoutButton from "../components/logout";
 import AddLibrarianForm from "../components/AddLibrarianForm";
@@ -20,6 +21,7 @@ export default function LibraryDashboard() {
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerOpenQR, setDrawerOpenQR] = useState(false);
+   const [drawerOpenLibs, setDrawerOpenLibs] = useState(false);//for librarians data
 
   const fetchLibraryData = async () => {
     setLoading(true);
@@ -82,6 +84,17 @@ export default function LibraryDashboard() {
             Scan Book QR
           </Button>
         </Grid>
+        <Grid item>
+  <Button
+    variant="contained"
+    color="primary"
+    onClick={() => setDrawerOpenLibs(true)}
+    disabled={loading}
+  >
+    👩‍💼 View Librarians
+  </Button>
+</Grid>
+
       </Grid>
 
       {/* Library info */}
@@ -132,9 +145,31 @@ export default function LibraryDashboard() {
             <CloseIcon />
           </IconButton>
         </Box>
-        {/* ✅ Pass `open` prop so camera opens/closes correctly */}
         <QRScanner open={drawerOpenQR} />
       </Drawer>
+      {/* Drawer for Librarian Data */}
+<Drawer
+  anchor="right"
+  open={drawerOpenLibs}
+  onClose={() => setDrawerOpenLibs(false)}
+  PaperProps={{
+    sx: {
+      width: "100%",
+      maxWidth: 900,
+      p: 3,
+      overflowY: "auto",
+      background: "linear-gradient(to right, #e0f7fa, #f1f8e9)",
+    },
+  }}
+>
+  <Box display="flex" justifyContent="flex-end" mb={2}>
+    <IconButton onClick={() => setDrawerOpenLibs(false)}>
+      <CloseIcon />
+    </IconButton>
+  </Box>
+  <LibrariansData />
+</Drawer>
+
     </Box>
   );
 }

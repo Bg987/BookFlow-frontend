@@ -19,6 +19,7 @@ import QRScanner from "../components/QRScanner";
 export default function LibraryDashboard() {
   const [libData, setLibData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [verified, setVerified] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerOpenQR, setDrawerOpenQR] = useState(false);
    const [drawerOpenLibs, setDrawerOpenLibs] = useState(false);//for librarians data
@@ -27,6 +28,7 @@ export default function LibraryDashboard() {
     setLoading(true);
     try {
       const response = await DataLib();
+      setVerified(response.data.verified)
       setLibData(response.data.data[0]);
     } catch (error) {
       alert(error.response?.data?.message || "Failed to load data");
@@ -100,7 +102,7 @@ export default function LibraryDashboard() {
       {/* Library info */}
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
-          <LibraryInfoCard library={libData} loading={loading} />
+          <LibraryInfoCard library={libData} verified loading={loading} />
         </Grid>
       </Grid>
 

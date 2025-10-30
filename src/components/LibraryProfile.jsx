@@ -1,13 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, Typography, Link, Skeleton } from "@mui/material";
 
-const LibraryInfoCard = ({ library, extra = "library", loading }) => {
+const LibraryInfoCard = ({ library,verified, extra = "library", loading }) => {
   if (!library && !loading) return null;
-
   const {
     library_name,
     founded_year,
-    verified,
     total_members,
     total_books,
     total_librarians,

@@ -29,7 +29,6 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       const response = await forgotpass({ identifier: inputValue });
-        console.log(response);
       setSuccess(
         response.data.message || "Check your email for reset instructions."
       );

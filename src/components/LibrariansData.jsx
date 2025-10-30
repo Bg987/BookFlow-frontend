@@ -10,19 +10,24 @@ import {
   Divider,
   Chip,
 } from "@mui/material";
-import { DataLibraians } from "../api/api";
+import { io } from "socket.io-client";
+import { DataLibraians, ActiveLibraianIds } from "../api/api";
 
 const LibrariansData = () => {
   const [librarians, setLibrarians] = useState([]);
+  const [activeIds, setActiveIds] = useState([]); // 🟢 store active librarian IDs
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchLibrarians = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
         const res = await DataLibraians();
+        const res2 = await ActiveLibraianIds();
+
         setLibrarians(res.data.librarians);
+        setActiveIds(res2.data.activeLibrarianIds || []);
       } catch (err) {
         console.error("Failed to fetch librarians:", err);
         setError("Unable to load librarian data.");
@@ -30,8 +35,30 @@ const LibrariansData = () => {
         setLoading(false);
       }
     };
-    fetchLibrarians();
-  },[]);
+
+    fetchData();
+
+    //Socket.IO connection
+    const socket = io("https://bookflow-1ceq.onrender.com"); 
+
+    socket.on("connect", () => {
+      console.log("Connected :");
+    });
+
+    //real-time librarian status updates
+    socket.on("activeUpdate", (data) => {
+      setActiveIds((prev) => {
+        if (data.action === "login") return [...new Set([...prev, data.id])];
+        if (data.action === "logout") return prev.filter((id) => id !== data.id);
+        return prev;
+      });
+    });
+
+    // Cleanup 
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   if (loading)
     return (
@@ -61,58 +88,80 @@ const LibrariansData = () => {
       </Typography>
 
       <Grid container spacing={3}>
-        {librarians.map((lib) => (
-          <Grid item xs={12} sm={6} md={4} key={lib.librarian_id}>
-            <Card
-              sx={{
-                borderRadius: 3,
-                boxShadow: 4,
-                p: 2,
-                background:
-                  "linear-gradient(135deg, rgba(255,255,255,0.9), rgba(220,255,245,0.9))",
-                transition: "0.3s",
-                "&:hover": { transform: "translateY(-5px)", boxShadow: 6 },
-              }}
-            >
-              <CardContent sx={{ textAlign: "center" }}>
-                <Avatar
-                  src={lib.profilePicUrl || "/default-avatar.png"}
-                  sx={{
-                    width: 80,
-                    height: 80,
-                    mx: "auto",
-                    mb: 2,
-                    border: "2px solid #1976d2",
-                  }}
-                />
-                <Typography variant="h6" fontWeight="bold">
-                  {lib.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {lib.username} ({lib.role})
-                </Typography>
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                  📧 {lib.email}
-                </Typography>
-                <Typography variant="body2">🎂 {lib.dob}</Typography>
-                <Divider sx={{ my: 1 }} />
-                <Chip
-                  label={lib.is_verified ? "Verified ✅" : "Unverified ⚠️"}
-                  color={lib.is_verified ? "success" : "warning"}
-                  variant="outlined"
-                  size="small"
-                />
-                <Typography variant="caption" display="block" mt={1}>
-                  Joined:{" "}
-                  {lib.createdAt
-                    ? new Date(lib.createdAt).toLocaleDateString()
-                    : "N/A"}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+        {librarians.map((lib) => {
+          const isActive = activeIds.includes(lib.librarian_id); // check status arr. of library's active librarian ids
+          return ( 
+            <Grid item xs={12} sm={6} md={4} key={lib.librarian_id}>
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  boxShadow: 4,
+                  p: 2,
+                  background:
+                    "linear-gradient(135deg, rgba(255,255,255,0.9), rgba(220,255,245,0.9))",
+                  transition: "0.3s",
+                  "&:hover": { transform: "translateY(-5px)", boxShadow: 6 },
+                }}
+              >
+                <CardContent sx={{ textAlign: "center" }}>
+                  <Avatar
+                    src={lib.profilePicUrl || "/default-avatar.png"}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      mx: "auto",
+                      mb: 2,
+                      border: `2px solid ${isActive ? "#4CAF50" : "#F44336"}`, // 🟢🔴 border color
+                      boxShadow: isActive
+                        ? "0 0 10px #4CAF50"
+                        : "0 0 10px #F44336",
+                      animation: isActive ? "blink 1s infinite" : "none",
+                    }}
+                  />
+                  <Typography variant="h6" fontWeight="bold">
+                    {lib.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {lib.username} ({lib.role})
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    📧 {lib.email}
+                  </Typography>
+                  <Typography variant="body2">🎂 {lib.dob}</Typography>
+                  <Divider sx={{ my: 1 }} />
+                  <Chip
+                    label={
+                      isActive
+                        ? "🟢 Active"
+                        : lib.is_verified
+                        ? "Verified ✅"
+                        : "Unverified ⚠️"
+                    }
+                    color={isActive ? "success" : "default"}
+                    variant="outlined"
+                    size="small"
+                  />
+                  <Typography variant="caption" display="block" mt={1}>
+                    Joined:{" "}
+                    {lib.createdAt
+                      ? new Date(lib.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
+
+      {/* 🟢 Blinking animation */}
+      <style>
+        {`
+          @keyframes blink {
+            50% { opacity: 0.5; }
+          }
+        `}
+      </style>
     </Box>
   );
 };

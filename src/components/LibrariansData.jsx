@@ -15,7 +15,8 @@ import { DataLibraians, ActiveLibraianIds } from "../api/api";
 
 const LibrariansData = () => {
   const [librarians, setLibrarians] = useState([]);
-  const [activeIds, setActiveIds] = useState([]); // 🟢 store active librarian IDs
+  const [activeIds, setActiveIds] = useState([]); 
+  const [activeNumber, setActiveCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -25,11 +26,15 @@ const LibrariansData = () => {
       try {
         const res = await DataLibraians();
         const res2 = await ActiveLibraianIds();
-
         setLibrarians(res.data.librarians);
         setActiveIds(res2.data.activeLibrarianIds || []);
+        setActiveCount((res2.data.activeLibrarianIds ||[]).length)
       } catch (err) {
-        console.error("Failed to fetch librarians:", err);
+        console.error("Failed to fetch librarians:", err.status);
+        if (err.status === 404) {
+          setError("NO librarian data.");
+          return;
+        }
         setError("Unable to load librarian data.");
       } finally {
         setLoading(false);
@@ -39,7 +44,7 @@ const LibrariansData = () => {
     fetchData();
 
     //Socket.IO connection
-    const socket = io("https://bookflow-1ceq.onrender.com"); 
+    const socket = io("http://localhost:5000"); 
 
     socket.on("connect", () => {
       console.log("Connected :");
@@ -48,10 +53,20 @@ const LibrariansData = () => {
     //real-time librarian status updates
     socket.on("activeUpdate", (data) => {
       setActiveIds((prev) => {
-        if (data.action === "login") return [...new Set([...prev, data.id])];
-        if (data.action === "logout") return prev.filter((id) => id !== data.id);
+        if (data.action === "login") {
+          const updated = [...new Set([...prev, data.id])];
+          setActiveCount(updated.length); // update count
+          return updated;
+        }
+
+        if (data.action === "logout") {
+          const updated = prev.filter((id) => id !== data.id);
+          setActiveCount(updated.length); // update count
+          return updated;
+        }
+
         return prev;
-      });
+});
     });
 
     // Cleanup 
@@ -84,8 +99,38 @@ const LibrariansData = () => {
   return (
     <Box>
       <Typography variant="h5" fontWeight="bold" mb={3} textAlign="center">
-        👩‍💼 Librarian Details
-      </Typography>
+  👩‍💼 Librarian Details{" "}
+  {activeNumber > 0 && (
+    <Box
+      component="span"
+      sx={{
+        backgroundColor: "#4CAF50",
+        color: "white",
+        px: 1.5,
+        py: 0.3,
+        borderRadius: "12px",
+        fontSize: "0.9rem",
+        ml: 1,
+        boxShadow: "0 0 10px #4CAF50",
+        animation: "pulse 2s infinite",
+      }}
+    >
+      {activeNumber}
+    </Box>
+  )}
+    </Typography>
+      <style>
+      {`
+        @keyframes pulse {
+          0% { box-shadow: 0 0 5px #4CAF50; }
+          25% { box-shadow: 0 0 15px #4CAF50; }
+          50% { box-shadow: 0 0 20px #4CAF50; }
+          75% { box-shadow: 0 0 15px #4CAF50; }
+          100% { box-shadow: 0 0 5px #4CAF50; }
+        }
+      `}
+      </style>
+
 
       <Grid container spacing={3}>
         {librarians.map((lib) => {

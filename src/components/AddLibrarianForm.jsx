@@ -55,14 +55,14 @@ const AddLibrarianForm = ({ onClose, onAdded }) => {
       const response = await AddLibrarian(data);
       setSuccess(response.data.message || "Librarian added successfully!");
 
-      setFormData({
-        name: "",
-        dob: "",
-        email: "",
-        username: "",
-        profilePic: null,
-      });
-      setPreview(null);
+      // setFormData({
+      //   name: "",
+      //   dob: "",
+      //   email: "",
+      //   username: "",
+      //   profilePic: null,
+      // });
+      // setPreview(null);
 
       if (onAdded) onAdded(); // notify parent to refresh data
     } catch (err) {

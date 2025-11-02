@@ -73,6 +73,7 @@ const LibraryPreSignup = () => {
     setSubmitting(true);
     try {
       const res = await signupLibPre(formData);
+      console.log(res);
       setSuccess(res.data.message);
       if (res.status === 200) {
         setTimeout(() => {

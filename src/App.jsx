@@ -11,6 +11,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import LibrarianLogin from "./pages/LibrarianLogin";
 import AddBook from "./pages/AddBook";
 import LibrarianDashboard from "./pages/LibrarianDashboard";
+import MemberSignup from "./pages/MemberSignup";
 import theme from "./theme";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/forgotPass" element={<ForgotPassword />} />
           <Route path="/resetPass" element={<ResetPassword />} />
           <Route path="/addBook" element={<AddBook />} />
+          <Route path="/member-signup" element={<MemberSignup />} />
         </Routes>
       </Router>
     </ThemeProvider>

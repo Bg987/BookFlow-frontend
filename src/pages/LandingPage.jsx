@@ -107,7 +107,7 @@ const LandingPageModern = () => {
                   </Button>
                   <Menu anchorEl={anchorElStart} open={openStart} onClose={() => handleStartClose()}>
                     <MenuItem onClick={() => handleStartClose("/library-signup")}>Library</MenuItem>
-                    <MenuItem onClick={() => handleStartClose("/member")}>Member</MenuItem>
+                    <MenuItem onClick={() => handleStartClose("/member-signup")}>Member</MenuItem>
                   </Menu>
                 </Grid>
 

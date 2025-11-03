@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "https://bookflow-1ceq.onrender.com/api"; // also change in librariansdata comp.
-/// http://192.168.41.47:5000 http://localhost:5000  http://10.182.99.47:5000
+const BASE_URL = "http://localhost:5000/api"; // also change in librariansdata comp.
+/// http://192.168.41.47:5000 https://bookflow-1ceq.onrender.com  http://10.182.99.47:5000
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
@@ -39,6 +39,9 @@ export const LoginLibrarian = (data) =>
 export const LibrarianData = () =>
   api.get(`/librarian/getLibrarian`);
 export const AddLibrarian = (data) => api2.post(`/librarian/AddLibrarian`, data);
+
+//member apis
+export const signupMember = (data) => api2.post("/member/pre-signup", data);
 
 
 export default api;

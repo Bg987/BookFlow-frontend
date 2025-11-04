@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, TextField, Button, Typography, Alert, CircularProgress, Paper } from "@mui/material";
 
-const LoginForm = ({ Type, loginApi, onSuccessRedirect = "/" }) => {
+const LoginForm = ({ Type, loginApi, onSuccessRedirect = "/",role }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-
   const handleLogin = async () => {
+    console.log("call func");
     setError("");
     setSuccess("");
     setLoading(true);
@@ -20,12 +20,14 @@ const LoginForm = ({ Type, loginApi, onSuccessRedirect = "/" }) => {
     }
 
     try {
+      console.log("api");
       const response = await loginApi({ username, password });
       setSuccess(response.data.message);
       setTimeout(() => {
         window.location.href = onSuccessRedirect;
       }, 2000);
     } catch (err) {
+      console.log(err);
       setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
@@ -50,7 +52,7 @@ const LoginForm = ({ Type, loginApi, onSuccessRedirect = "/" }) => {
         textAlign="center"
         sx={{ fontWeight: "bold", color: "#1976d2", letterSpacing: 0.5 }}
       >
-        {Type} Login
+        {role} Login
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}

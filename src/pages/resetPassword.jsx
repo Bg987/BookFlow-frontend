@@ -47,9 +47,13 @@ const ResetPassword = () => {
     try {
       const response = await resetPass( {token,newPassword: password,});
       setSuccess(response.data.message || "Password reset successful!");
+      console.log(response.data.role);
+      const tempR = response.data.role; 
       setTimeout(() => {
-        navigate("/");
-      }, 3000);
+      navigate("/login", {
+        state: { role: tempR.charAt(0).toUpperCase() + tempR.slice(1) },
+      });
+    }, 1500);
     } catch (err) {
         console.log(err);
       setError(err.response?.data?.message || "Something went wrong.");

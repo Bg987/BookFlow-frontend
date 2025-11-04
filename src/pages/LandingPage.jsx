@@ -17,9 +17,9 @@ const LandingPageModern = () => {
   const [anchorElLogin, setAnchorElLogin] = useState(null);
   const openLogin = Boolean(anchorElLogin);
   const handleLoginClick = (event) => setAnchorElLogin(event.currentTarget);
-  const handleLoginClose = (path) => {
+  const handleLoginClose = (path,role) => {
     setAnchorElLogin(null);
-    if (path) navigate(path);
+    if (path) navigate(path,{state:role});
   };
 
   return (
@@ -123,9 +123,9 @@ const LandingPageModern = () => {
                     Login
                   </Button>
                   <Menu anchorEl={anchorElLogin} open={openLogin} onClose={() => handleLoginClose()}>
-                    <MenuItem onClick={() => handleLoginClose("/library-login")}>Library</MenuItem>
-                    <MenuItem onClick={() => handleLoginClose("/librarian-login")}>Librarian</MenuItem>
-                    <MenuItem onClick={() => handleLoginClose("/member-login")}>Member</MenuItem>
+                    <MenuItem onClick={() => handleLoginClose("/login",{ role: "Library" })}>Library</MenuItem>
+                    <MenuItem onClick={() => handleLoginClose("/login",{ role: "Librarian" })}>Librarian</MenuItem>
+                    <MenuItem onClick={() => handleLoginClose("/login",{ role: "Member" })}>Member</MenuItem>
                   </Menu>
                 </Grid>
               </Grid>

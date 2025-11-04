@@ -4,11 +4,11 @@ import "leaflet/dist/leaflet.css";
 import LibrarySignup from "./pages/LibrarySignup";
 import LibraryDashboard from "./pages/LibraryDashboard";
 import ForgotPassword from "./pages/forgotPassword";
-import LibraryLogin from "./pages/LibraryLogin";
+
 import ResetPassword from "./pages/resetPassword";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import LibrarianLogin from "./pages/LibrarianLogin";
+import Login from "./pages/Login";
 import AddBook from "./pages/AddBook";
 import LibrarianDashboard from "./pages/LibrarianDashboard";
 import MemberSignup from "./pages/MemberSignup";
@@ -22,9 +22,8 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/library-signup" element={<LibrarySignup />} />
-          <Route path="/library-login" element={<LibraryLogin />} />
           <Route path="/dashLibrary" element={<LibraryDashboard />} />
-          <Route path="/librarian-login" element={<LibrarianLogin />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/dashLibrarian" element={<LibrarianDashboard />} />
           <Route path="/forgotPass" element={<ForgotPassword />} />
           <Route path="/resetPass" element={<ResetPassword />} />

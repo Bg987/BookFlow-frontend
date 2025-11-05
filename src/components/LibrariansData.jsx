@@ -24,8 +24,8 @@ const LibrariansData = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await DataLibraians();
-        const res2 = await ActiveLibraianIds();
+        const [res, res2] = await Promise.all([
+          DataLibraians(),ActiveLibraianIds()]);
         setLibrarians(res.data.librarians);
         setActiveIds(res2.data.activeLibrarianIds || []);
         setActiveCount((res2.data.activeLibrarianIds ||[]).length)
@@ -44,7 +44,7 @@ const LibrariansData = () => {
     fetchData();
 
     //Socket.IO connection
-    const socket = io("https://bookflow-1ceq.onrender.com"); 
+    const socket = io("http://localhost:5000"); 
 
     socket.on("connect", () => {
       console.log("Connected :");

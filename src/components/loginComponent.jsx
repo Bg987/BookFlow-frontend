@@ -8,7 +8,6 @@ const LoginForm = ({ Type, loginApi, onSuccessRedirect = "/",role }) => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const handleLogin = async () => {
-    console.log("call func");
     setError("");
     setSuccess("");
     setLoading(true);

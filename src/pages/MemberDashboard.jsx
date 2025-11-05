@@ -1,6 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Card, Button, Skeleton, Grid } from "@mui/material";
-import { MemberData } from "../api/api";
+import {
+  Box,
+  Typography,
+  Card,
+  Button,
+  Skeleton,
+  Grid,
+  Drawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { MemberData, getNearLibs } from "../api/api";
 import LogoutButton from "../components/logout";
 import MemberInfoCard from "../components/MemberProfile";
 import LibraryInfoCard from "../components/LibraryProfile";
@@ -8,12 +22,15 @@ import LibraryInfoCard from "../components/LibraryProfile";
 const MemberDashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [nearbyLibraries, setNearbyLibraries] = useState([]);
+  const [locating, setLocating] = useState(false);
+  const [memberCoords, setMemberCoords] = useState({ lat: null, lon: null });
 
   useEffect(() => {
     const fetchMemberData = async () => {
       try {
         const res = await MemberData();
-        console.log(res);
         setData(res.data.data);
       } catch (err) {
         console.error("Error fetching member data:", err);
@@ -23,6 +40,44 @@ const MemberDashboard = () => {
     };
     fetchMemberData();
   }, []);
+
+  // 🔹 Get member location & nearby libraries
+  const getNearbyLibraries = async () => {
+    setLocating(true);
+    try {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setMemberCoords({ lat: latitude, lon: longitude });
+          const res = await getNearLibs({ latitude, longitude });
+          setNearbyLibraries(res.data.data);
+          setDrawerOpen(true);
+          setLocating(false);
+        },
+        (err) => {
+          console.error("Location permission denied:", err);
+          alert("Location permission is required to find nearby libraries.");
+          setLocating(false);
+        }
+      );
+    } catch (error) {
+      console.error("Error fetching nearby libraries:", error);
+      setLocating(false);
+    }
+  };
+
+  // 🔹 Open Google Maps route between member and library
+  const openInGoogleMaps = (library) => {
+    if (!memberCoords.lat || !memberCoords.lon) {
+      alert("Location not detected. Please enable location and try again.");
+      return;
+    }
+
+    const origin = `${memberCoords.lat},${memberCoords.lon}`;
+    const destination = `${library.latitude},${library.longitude}`;
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+    window.open(mapsUrl, "_blank");
+  };
 
   const renderSkeleton = () => (
     <Box sx={{ p: 4 }}>
@@ -62,28 +117,20 @@ const MemberDashboard = () => {
 
   return (
     <Box sx={{ p: 4, backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
+      {/* Header */}
       <Box display="flex" justifyContent="space-between" mb={2}>
-              {loading ? (
-                <Skeleton variant="text" width={250} height={40} />
-              ) : (
-                <Typography variant="h4" fontWeight="bold" sx={{ color: "black" }}>
-                   Welcome {member.name || "Member Dashboard"}
-                </Typography>
-              )}
-              <LogoutButton redirectTo="/" />
-            </Box>
-      <Box />
-      {/* Member Info Section */}
+        <Typography variant="h4" fontWeight="bold" sx={{ color: "black" }}>
+          Welcome {member.name || "Member Dashboard"}
+        </Typography>
+        <LogoutButton redirectTo="/" />
+      </Box>
+
+      {/* Member Info */}
       <MemberInfoCard user={user} member={member} loading={loading} />
 
-      {/* Library Info Section */}
+      {/* Library Info or Nearby Search */}
       {library ? (
-        <LibraryInfoCard
-          library={library}
-          verified={true}
-          extra="member"
-          loading={loading}
-        />
+        <LibraryInfoCard library={library} verified={true} extra="member" loading={loading} />
       ) : (
         <Card
           sx={{
@@ -102,12 +149,49 @@ const MemberDashboard = () => {
             variant="contained"
             color="primary"
             sx={{ mt: 2 }}
-            onClick={() => (window.location.href = "/explore-libraries")}
+            onClick={getNearbyLibraries}
+            disabled={locating}
           >
-            Explore Libraries
+            {locating ? "Detecting Location..." : "Find Nearby Libraries"}
           </Button>
         </Card>
       )}
+
+      {/* Drawer for Nearby Libraries */}
+      <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Box sx={{ width: 350, p: 3 }}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6" fontWeight="bold">
+              Nearby Libraries
+            </Typography>
+            <IconButton onClick={() => setDrawerOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Divider sx={{ mb: 2 }} />
+
+          {nearbyLibraries.length === 0 ? (
+            <Typography variant="body1" color="text.secondary">
+              No libraries found nearby.
+            </Typography>
+          ) : (
+            <List>
+              {nearbyLibraries.map((lib) => (
+                <React.Fragment key={lib.lib_id}>
+                  <ListItem button onClick={() => openInGoogleMaps(lib)}>
+                    <ListItemText
+                      primary={lib.name}
+                      secondary={`${lib.distance.toFixed(2)} km away`}
+                    />
+                    <h5>Click for Route</h5>
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              ))}
+            </List>
+          )}
+        </Box>
+      </Drawer>
     </Box>
   );
 };

@@ -10,11 +10,11 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemText,
+  
   Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { MemberData, getNearLibs } from "../api/api";
+import { MemberData, getNearLibs,LibReq } from "../api/api";
 import LogoutButton from "../components/logout";
 import MemberInfoCard from "../components/MemberProfile";
 import LibraryInfoCard from "../components/LibraryProfile";
@@ -25,6 +25,8 @@ const MemberDashboard = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [nearbyLibraries, setNearbyLibraries] = useState([]);
   const [locating, setLocating] = useState(false);
+  const [requestStatus, setRequestStatus] = useState({});
+  const [requestLoading, setRequestLoading] = useState({});
   const [memberCoords, setMemberCoords] = useState({ lat: null, lon: null });
 
   useEffect(() => {
@@ -41,7 +43,7 @@ const MemberDashboard = () => {
     fetchMemberData();
   }, []);
 
-  // 🔹 Get member location & nearby libraries
+  //Get member location & nearby libraries
   const getNearbyLibraries = async () => {
     setLocating(true);
     try {
@@ -66,7 +68,7 @@ const MemberDashboard = () => {
     }
   };
 
-  // 🔹 Open Google Maps route between member and library
+  //Open Google Maps route between member and library
   const openInGoogleMaps = (library) => {
     if (!memberCoords.lat || !memberCoords.lon) {
       alert("Location not detected. Please enable location and try again.");
@@ -79,7 +81,31 @@ const MemberDashboard = () => {
     window.open(mapsUrl, "_blank");
   };
 
-  const renderSkeleton = () => (
+const handleApplyMembership = async (libraryId) => {
+  // Set loading true for this library
+  setRequestLoading((prev) => ({ ...prev, [libraryId]: true }));
+
+  try {
+    const res = await LibReq({ library_id: libraryId });
+
+    setRequestStatus((prev) => ({
+      ...prev,
+      [libraryId]: res.data.message || "Membership request sent successfully!",
+    }));
+  } catch (err) {
+    console.error("Error applying for membership:", err);
+    const errorMsg = err.response?.data?.message || "Failed to send membership request.";
+    setRequestStatus((prev) => ({
+      ...prev,
+      [libraryId]: errorMsg,
+    }));
+  } finally {
+    // Reset loading after response
+    setRequestLoading((prev) => ({ ...prev, [libraryId]: false }));
+  }
+};
+  
+const renderSkeleton = () => (
     <Box sx={{ p: 4 }}>
       <Skeleton variant="text" width={220} height={40} sx={{ mb: 2 }} />
       <Grid container spacing={3}>
@@ -169,26 +195,79 @@ const MemberDashboard = () => {
             </IconButton>
           </Box>
           <Divider sx={{ mb: 2 }} />
-
           {nearbyLibraries.length === 0 ? (
             <Typography variant="body1" color="text.secondary">
               No libraries found nearby.
             </Typography>
           ) : (
             <List>
-              {nearbyLibraries.map((lib) => (
-                <React.Fragment key={lib.lib_id}>
-                  <ListItem button onClick={() => openInGoogleMaps(lib)}>
-                    <ListItemText
-                      primary={lib.name}
-                      secondary={`${lib.distance.toFixed(2)} km away`}
-                    />
-                    <h5>Click for Route</h5>
-                  </ListItem>
-                  <Divider />
-                </React.Fragment>
-              ))}
-            </List>
+            {nearbyLibraries.map((lib) => (
+              <React.Fragment key={lib.lib_id}>
+                <ListItem
+                  sx={{
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    mb: 1,
+                    border: "1px solid #ddd",
+                    borderRadius: 2,
+                    p: 2,
+                  }}
+                >
+                  <Box
+                    width="100%"
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {lib.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {lib.distance.toFixed(2)} km away
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="secondary"
+                      onClick={() => openInGoogleMaps(lib)}
+                    >
+                      Route
+                    </Button>
+                  </Box>
+                  <Button
+                      variant="contained"
+                      color="primary"
+                      sx={{ mt: 1 }}
+                      onClick={() => handleApplyMembership(lib.lib_id)}
+                      disabled={requestLoading[lib.lib_id] || !!requestStatus[lib.lib_id]} // disable while sending or after sent
+                    >
+                      {requestLoading[lib.lib_id]
+                        ? "Sending..."
+                        : requestStatus[lib.lib_id]
+                        ? "Request Sent"
+                        : "Apply for Membership"}
+                    </Button>
+                  {requestStatus[lib.lib_id] && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        mt: 1,
+                        color: requestStatus[lib.lib_id].includes("Failed")
+                          ? "error.main"
+                          : "success.main",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {requestStatus[lib.lib_id]}
+                    </Typography>
+                  )}
+                </ListItem>
+                <Divider />
+              </React.Fragment>
+            ))}
+          </List>
           )}
         </Box>
       </Drawer>

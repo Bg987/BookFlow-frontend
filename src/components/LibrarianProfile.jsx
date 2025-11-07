@@ -55,7 +55,7 @@ const LibrarianProfile = ({ librarian_data, userData, loading }) => {
             <Skeleton variant="text" width={120} />
           ) : (
             <Typography variant="body3" color="textSecondary">
-              Role: {userData.password}
+              Role: {userData.role}
             </Typography>
           )}
 

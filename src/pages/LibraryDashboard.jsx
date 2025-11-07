@@ -23,25 +23,21 @@ const socket = io("http://localhost:5000"); // replace with your backend URL
 
 export default function LibraryDashboard() {
   const [libData, setLibData] = useState(null);
+  const [libId, setLibId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerOpenQR, setDrawerOpenQR] = useState(false);
   const [drawerOpenLibs, setDrawerOpenLibs] = useState(false);
-  const [realTimeCounts, setRealTimeCounts] = useState({ pending: 0, totalMembers: 0 });
 
   // Fetch library data
   const fetchLibraryData = async () => {
     setLoading(true);
     try {
       const response = await DataLib();
+      setLibId(response.data.data[0].lib_id);
       setVerified(response.data.verified);
       setLibData(response.data.data[0]);
-      // Initialize real-time counts
-      setRealTimeCounts({
-        pending: response.data.data[0]?.pending_requests ?? 0,
-        totalMembers: response.data.data[0]?.total_members ?? 0,
-      });
     } catch (error) {
       alert(error.response?.data?.message || "Failed to load data");
       console.error("Error fetching library data:", error);
@@ -53,25 +49,6 @@ export default function LibraryDashboard() {
   useEffect(() => {
     fetchLibraryData();
   }, []);
-
-  // Setup Socket.IO for real-time updates
-  useEffect(() => {
-    if (!libData?.lib_id) return;
-
-    // Join room for this library
-    socket.emit("join-library-room", libData.lib_id);
-
-    // Listen for updates
-    socket.on("update-request-count", (data) => {
-      // data = { pending, totalMembers }
-      console.log(data);
-      setRealTimeCounts(data);
-    });
-    return () => {
-      socket.emit("leave-library-room", libData.lib_id);
-      socket.off("update-request-count");
-    };
-  }, [libData?.lib_id]);
 
   const toggleDrawer = () => setDrawerOpen((prev) => !prev);
 
@@ -133,10 +110,10 @@ export default function LibraryDashboard() {
         <Grid item xs={12} md={4}>
           <LibraryInfoCard
             library={libData}
+            libraryId={libId}
             verified={verified}
             extra="library"
             loading={loading}
-            realTimeCounts={realTimeCounts} // <-- pass real-time counts
           />
         </Grid>
       </Grid>

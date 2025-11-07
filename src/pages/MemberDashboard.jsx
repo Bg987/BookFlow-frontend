@@ -33,6 +33,7 @@ const MemberDashboard = () => {
     const fetchMemberData = async () => {
       try {
         const res = await MemberData();
+        console.log(res.data.data.libMsg);
         setData(res.data.data);
       } catch (err) {
         console.error("Error fetching member data:", err);
@@ -168,15 +169,16 @@ const renderSkeleton = () => (
             backgroundColor: "#fff3e0",
           }}
         >
-          <Typography variant="h6" color="textSecondary">
-            You are not connected to any library.
+            <Typography variant="h6" color="textSecondary">
+          {/*check whether member apply for any membership or not*/}
+          {!data.libMsg?"You are not connected to any library.":data.libMsg}  
           </Typography>
           <Button
             variant="contained"
             color="primary"
             sx={{ mt: 2 }}
             onClick={getNearbyLibraries}
-            disabled={locating}
+            disabled={data.libMsg||locating}//
           >
             {locating ? "Detecting Location..." : "Find Nearby Libraries"}
           </Button>

@@ -17,9 +17,10 @@ import LibraryInfoCard from "../components/LibraryProfile";
 import LogoutButton from "../components/logout";
 import AddLibrarianForm from "../components/AddLibrarianForm";
 import QRScanner from "../components/QRScanner";
+import PendingRequests from "../components/PendingRequests"; // ✅ NEW COMPONENT
 
 // Connect to Socket.IO server
-const socket = io("http://localhost:5000"); // replace with your backend URL
+const socket = io("http://localhost:5000");
 
 export default function LibraryDashboard() {
   const [libData, setLibData] = useState(null);
@@ -29,8 +30,8 @@ export default function LibraryDashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerOpenQR, setDrawerOpenQR] = useState(false);
   const [drawerOpenLibs, setDrawerOpenLibs] = useState(false);
+  const [drawerOpenPending, setDrawerOpenPending] = useState(false); // ✅ NEW STATE
 
-  // Fetch library data
   const fetchLibraryData = async () => {
     setLoading(true);
     try {
@@ -84,6 +85,7 @@ export default function LibraryDashboard() {
             {drawerOpen ? "Close Add Librarian" : "+ Add Librarian"}
           </Button>
         </Grid>
+
         <Grid item>
           <Button
             variant="contained"
@@ -93,6 +95,7 @@ export default function LibraryDashboard() {
             Scan Book QR
           </Button>
         </Grid>
+
         <Grid item>
           <Button
             variant="contained"
@@ -101,6 +104,18 @@ export default function LibraryDashboard() {
             disabled={loading}
           >
             👩‍💼 View Librarians
+          </Button>
+        </Grid>
+
+        {/* ✅ New Button for Pending Requests */}
+        <Grid item>
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={() => setDrawerOpenPending(true)}
+            disabled={loading}
+          >
+            📩 Pending Requests
           </Button>
         </Grid>
       </Grid>
@@ -118,26 +133,84 @@ export default function LibraryDashboard() {
         </Grid>
       </Grid>
 
-      {/* Drawers (Add Librarian, QR Scanner, Librarians Data) */}
-      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer} PaperProps={{ sx: { width: "100%", maxWidth: 600, p: 3, overflowY: "auto" } }}>
+      {/* Drawers */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={toggleDrawer}
+        PaperProps={{
+          sx: { width: "100%", maxWidth: 600, p: 3, overflowY: "auto" },
+        }}
+      >
         <Box display="flex" justifyContent="flex-end">
-          <IconButton onClick={toggleDrawer}><CloseIcon /></IconButton>
+          <IconButton onClick={toggleDrawer}>
+            <CloseIcon />
+          </IconButton>
         </Box>
         <AddLibrarianForm onClose={toggleDrawer} onAdded={fetchLibraryData} />
       </Drawer>
 
-      <Drawer anchor="right" open={drawerOpenQR} onClose={() => setDrawerOpenQR(false)} PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}>
+      <Drawer
+        anchor="right"
+        open={drawerOpenQR}
+        onClose={() => setDrawerOpenQR(false)}
+        PaperProps={{
+          sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" },
+        }}
+      >
         <Box display="flex" justifyContent="flex-end" mb={2}>
-          <IconButton onClick={() => setDrawerOpenQR(false)}><CloseIcon /></IconButton>
+          <IconButton onClick={() => setDrawerOpenQR(false)}>
+            <CloseIcon />
+          </IconButton>
         </Box>
         <QRScanner open={drawerOpenQR} />
       </Drawer>
 
-      <Drawer anchor="right" open={drawerOpenLibs} onClose={() => setDrawerOpenLibs(false)} PaperProps={{ sx: { width: "100%", maxWidth: 900, p: 3, overflowY: "auto", background: "linear-gradient(to right, #e0f7fa, #f1f8e9)" } }}>
+      <Drawer
+        anchor="right"
+        open={drawerOpenLibs}
+        onClose={() => setDrawerOpenLibs(false)}
+        PaperProps={{
+          sx: {
+            width: "100%",
+            maxWidth: 900,
+            p: 3,
+            overflowY: "auto",
+            background: "linear-gradient(to right, #e0f7fa, #f1f8e9)",
+          },
+        }}
+      >
         <Box display="flex" justifyContent="flex-end" mb={2}>
-          <IconButton onClick={() => setDrawerOpenLibs(false)}><CloseIcon /></IconButton>
+          <IconButton onClick={() => setDrawerOpenLibs(false)}>
+            <CloseIcon />
+          </IconButton>
         </Box>
         <LibrariansData />
+      </Drawer>
+
+      {/* ✅ Drawer for Pending Requests */}
+      <Drawer
+        anchor="right"
+        open={drawerOpenPending}
+        onClose={() => setDrawerOpenPending(false)}
+        PaperProps={{
+          sx: {
+            width: "100%",
+            maxWidth: 900,
+            p: 3,
+            overflowY: "auto",
+            background: "linear-gradient(to right, #fff3e0, #ffe0b2)",
+          },
+        }}
+      >
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <IconButton onClick={() => setDrawerOpenPending(false)}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        {/* Component */}
+        <PendingRequests libId={libId} />
       </Drawer>
     </Box>
   );

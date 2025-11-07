@@ -21,34 +21,45 @@ const LibraryInfoCard = ({ library, verified, extra, loading }) => {
     total: library?.total_members || 0,
   });
 
-  useEffect(() => {
-    if (!library?.lib_id || extra === "member") return;
+useEffect(() => {
+  if (!library?.lib_id || extra === "member") return;
 
-    socket.emit("join-library-room", library.lib_id);
+  // Join the library room
+  console.log(`Connecting to library room: ${library.lib_id}`);
+  socket.emit("join-library-room", library.lib_id);
 
-    socket.on("update-request-count", (data) => {
-      setCounts((prev) => {
-        const newCounts = {
-          pending: data.pending ?? prev.pending,
-          approved: data.approved ?? prev.approved,
-          total :data.total??prev.total,
-        };
-        // Trigger animation only if number changed
-        if (newCounts.pending !== prev.pending)
-          setAnimKey((a) => ({ ...a, pending: true }));
-        if (newCounts.approved !== prev.approved)
-          setAnimKey((a) => ({ ...a, approved: true }));
-        if (newCounts.total !== prev.total)
-          setAnimKey((a) => ({ ...a, approved: true }));
-        return newCounts;
-      });
+  // Listen for updates
+  const handleUpdate = (data) => {
+    console.log("Received update-request-count:", data);
+    setCounts((prev) => {
+      const newCounts = {
+        pending: data.pending ?? prev.pending,
+        rejected: data.rejected ?? prev.rejected,
+        total: data.total ?? prev.total,
+      };
+
+      // Trigger animation only if number changed
+      if (newCounts.pending !== prev.pending)
+        setAnimKey((a) => ({ ...a, pending: true }));
+      if (newCounts.rejected !== prev.rejected)
+        setAnimKey((a) => ({ ...a, approved: true }));
+      if (newCounts.total !== prev.total)
+        setAnimKey((a) => ({ ...a, total: true }));
+
+      return newCounts;
     });
+  };
 
-    return () => {
-      socket.emit("leave-library-room", library.lib_id);
-      socket.off("update-request-count");
-    };
-  }, [library?.lib_id]);
+  socket.on("update-request-count", handleUpdate);
+
+  // Cleanup on unmount
+  return () => {
+    console.log(`Disconnecting from library room: ${library.lib_id}`);
+    socket.emit("leave-library-room", library.lib_id);
+    socket.off("update-request-count", handleUpdate);
+  };
+}, [library?.lib_id]);
+
   //perent componnet take some time to fetchdata from api so as it done show in UI 
   useEffect(() => {
   if (library) {
@@ -157,7 +168,7 @@ const LibraryInfoCard = ({ library, verified, extra, loading }) => {
               }),
             }}
           >
-          <b>Rejected Requests:</b> {counts.rejected}
+          ❌<b>Rejected Requests:</b> {counts.rejected}
           </Typography> 
           {total_books !== undefined && (
             <Typography sx={{ mb: 0.5 }}>

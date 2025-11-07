@@ -17,7 +17,8 @@ import LibrarianProfile from "../components/LibrarianProfile";
 import AddBook from "../pages/AddBook";
 import BookList from "../components/BookList";
 import BookDetails from "../components/BookDetails";
-import QRScanner from "../components/QRScanner"; 
+import QRScanner from "../components/QRScanner";
+import PendingRequests from "../components/PendingRequests"; // ✅ import added
 
 const LibrarianDashboard = () => {
   const [profile, setProfile] = useState(null);
@@ -27,7 +28,8 @@ const LibrarianDashboard = () => {
   // Drawer states
   const [drawerOpenAddBook, setDrawerOpenAddBook] = useState(false);
   const [drawerOpenBookData, setDrawerOpenBookData] = useState(false);
-  const [drawerOpenQR, setDrawerOpenQR] = useState(false); 
+  const [drawerOpenQR, setDrawerOpenQR] = useState(false);
+  const [drawerOpenPending, setDrawerOpenPending] = useState(false); // ✅ new state
   const [selectedBook, setSelectedBook] = useState(null);
 
   const [books, setBooks] = useState([]);
@@ -40,6 +42,7 @@ const LibrarianDashboard = () => {
         const data = res.data.Data;
         setProfile(data);
         setLibrary(data.library_data);
+        console.log("Library ID:", data.library_data.lib_id);
       } catch (err) {
         alert(err.response?.data?.message || "Failed to fetch data");
         console.error(err);
@@ -114,6 +117,16 @@ const LibrarianDashboard = () => {
             Scan Book QR
           </Button>
         </Grid>
+        <Grid item>
+          {/* ✅ New Button for Pending Requests */}
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={() => setDrawerOpenPending(true)}
+          >
+            Pending Requests
+          </Button>
+        </Grid>
       </Grid>
 
       {/* Dashboard content */}
@@ -149,7 +162,9 @@ const LibrarianDashboard = () => {
         anchor="right"
         open={drawerOpenAddBook}
         onClose={() => setDrawerOpenAddBook(false)}
-        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
+        PaperProps={{
+          sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" },
+        }}
       >
         <Box display="flex" justifyContent="flex-end" mb={2}>
           <IconButton onClick={() => setDrawerOpenAddBook(false)}>
@@ -164,7 +179,9 @@ const LibrarianDashboard = () => {
         anchor="right"
         open={drawerOpenBookData}
         onClose={() => setDrawerOpenBookData(false)}
-        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
+        PaperProps={{
+          sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" },
+        }}
       >
         <Box display="flex" justifyContent="flex-end" mb={2}>
           <IconButton onClick={() => setDrawerOpenBookData(false)}>
@@ -183,7 +200,9 @@ const LibrarianDashboard = () => {
         anchor="right"
         open={!!selectedBook}
         onClose={() => setSelectedBook(null)}
-        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
+        PaperProps={{
+          sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" },
+        }}
       >
         {selectedBook && (
           <Box>
@@ -201,12 +220,14 @@ const LibrarianDashboard = () => {
         )}
       </Drawer>
 
-      
+      {/* QR Scanner Drawer */}
       <Drawer
         anchor="right"
         open={drawerOpenQR}
         onClose={() => setDrawerOpenQR(false)}
-        PaperProps={{ sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" } }}
+        PaperProps={{
+          sx: { width: "100%", maxWidth: 800, p: 3, overflowY: "auto" },
+        }}
       >
         <Box display="flex" justifyContent="flex-end" mb={2}>
           <IconButton onClick={() => setDrawerOpenQR(false)}>
@@ -214,6 +235,23 @@ const LibrarianDashboard = () => {
           </IconButton>
         </Box>
         <QRScanner />
+      </Drawer>
+
+      {/* ✅ Pending Requests Drawer */}
+      <Drawer
+        anchor="right"
+        open={drawerOpenPending}
+        onClose={() => setDrawerOpenPending(false)}
+        PaperProps={{
+          sx: { width: "100%", maxWidth: 850, p: 3, overflowY: "auto" },
+        }}
+      >
+        <Box display="flex" justifyContent="flex-end" mb={2}>
+          <IconButton onClick={() => setDrawerOpenPending(false)}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <PendingRequests libId={Library?.lib_id} />
       </Drawer>
     </Box>
   );

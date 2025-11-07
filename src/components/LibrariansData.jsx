@@ -13,6 +13,9 @@ import {
 import { io } from "socket.io-client";
 import { DataLibraians, ActiveLibraianIds } from "../api/api";
 
+
+const socket = io("https://bookflow-1ceq.onrender.com", { transports: ["websocket"] });
+
 const LibrariansData = () => {
   const [librarians, setLibrarians] = useState([]);
   const [activeIds, setActiveIds] = useState([]); 
@@ -44,7 +47,7 @@ const LibrariansData = () => {
     fetchData();
 
     //Socket.IO connection
-    const socket = io("https://bookflow-1ceq.onrender.com"); 
+     
 
     socket.on("connect", () => {
       console.log("Connected :");

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "https://bookflow-1ceq.onrender.com/api"; // also change in librariansdata,lib data
-/// http://192.168.41.47:5000 http://localhost:5000 http://10.182.99.47:5000 
+const BASE_URL = "https://bookflow-1ceq.onrender.com/api"; // also change in librariansdata,libProfile
+/// http://192.168.41.47:5000 http://localhost:5000 http://localhost:5000 http://10.182.99.47:5000 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
@@ -15,7 +15,7 @@ const api2 = axios.create({
 //utility apis
 export const logout = () => api.post("/logout");
 export const forgotpass = (identifier) => api.post("/forgotPass", identifier);
-export const resetPass = (data) => api.post("/resetPass",data);
+export const resetPass = (data) => api.post("/resetPass", data);
 
 //library apis
 export const signupLibPre = (data) => api.post("/library/pre-signup", data);
@@ -47,4 +47,8 @@ export const MemberData = () => api.get(`member/getMember`);
 export const getNearLibs = ({ latitude, longitude}) =>
   api.get(`/member/GetNearLibs?lat=${latitude}&lon=${longitude}`);
 export const LibReq = (data) => api.post("/member/apply", data);
+
+//other common apis
+export const getPendingReq = (libId) => api.get(`/getPending/${libId}`);
+export const handleRequestAction = (data) => api.put(`/handleRequestAction`,data);
 export default api;

@@ -44,7 +44,7 @@ const LibrariansData = () => {
     fetchData();
 
     //Socket.IO connection
-    const socket = io("http://localhost:5000"); 
+    const socket = io("https://bookflow-1ceq.onrender.com"); 
 
     socket.on("connect", () => {
       console.log("Connected :");
